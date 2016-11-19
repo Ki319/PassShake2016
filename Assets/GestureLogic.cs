@@ -11,7 +11,7 @@ public class GestureLogic : MonoBehaviour {
     private static Hand holdHand;                        //Last state of hand before position hold
 
 	void Start () {
-        holdHand = 
+        CopyHand();
 	
 	}
 	
@@ -22,6 +22,6 @@ public class GestureLogic : MonoBehaviour {
 
     void CopyHand(Hand curr)
     {
-
+        holdHand = curr;
     }
 }
