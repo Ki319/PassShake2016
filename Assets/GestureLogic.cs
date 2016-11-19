@@ -22,10 +22,7 @@ public class GestureLogic : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if(DetectChange(hand.GetLeapHand())) {
-
-
-        }
+        if(DetectChange(HandModel._ha)
 	
 	}
 
