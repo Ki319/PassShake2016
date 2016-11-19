@@ -7,21 +7,25 @@ using System.Collections.Generic;
 public class GestureLogic : MonoBehaviour {
 
     private List<Hand> gestures = new List<Hand>();//List of gesture so far
-    public List<Hand> correct = new List<Hand>(); //Correct passshake
-    private float holdPositionTime;                      //Time that certain position is held
-    private static Hand holdHand;   //Last state of hand before position hold
+    public List<Hand> correct = new List<Hand>();  //Correct passshake
+    private float holdPositionTime;                //Time that certain position is held
+    private static Hand holdHand;                  //Last state of hand before position hold
     public Hand endHand;
     private RigidHand hand;
-    public int tolerance; //leeway in mm
+    public int tolerance;                          //leeway in mm
 
 	void Start () {
         CopyHand(hand.GetLeapHand());
         holdPositionTime = Time.time;
+        tolerance = 20;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if(DetectChange(HandModel._ha)
+        if(DetectChange(hand.GetLeapHand())) {
+
+
+        }
 	
 	}
 
