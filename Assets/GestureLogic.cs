@@ -66,11 +66,24 @@ public class GestureLogic : MonoBehaviour {
             passwordExists = true;
             using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
             {
+                int i = 0;
                 bool done = false;
                 while(done == false)
                 {
                     try
                     {
+                        Hand h = new Hand();
+                        //palm
+                        h.PalmPosition.x = reader.ReadSingle();
+                        h.PalmPosition.y = reader.ReadSingle();
+                        h.PalmPosition.z = reader.ReadSingle();
+                        for(int j = 0; j < 5; j++) //fingers
+                        {
+                            h.Fingers[j].StabilizedTipPosition.x = reader.ReadSingle();
+                            h.Fingers[j].StabilizedTipPosition.y = reader.ReadSingle();
+                            h.Fingers[j].StabilizedTipPosition.z = reader.ReadSingle();
+                        }
+                        correct.Add(h);
 
                     } catch (EndOfStreamException e)
                     {
