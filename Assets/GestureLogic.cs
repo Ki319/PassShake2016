@@ -11,9 +11,10 @@ public class GestureLogic : MonoBehaviour {
     private float holdPositionTime;                      //Time that certain position is held
     private static Hand holdHand;   //Last state of hand before position hold
     public Hand endHand;
+    private CapsuleHand hand;
 
 	void Start () {
-        CopyHand(HandRepresentation.MostRecentHand);
+        CopyHand(hand.GetLeapHand());
         holdPositionTime = Time.time;
 	}
 	
