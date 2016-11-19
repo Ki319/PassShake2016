@@ -19,12 +19,23 @@ public class GestureLogic : MonoBehaviour {
         holdPositionTime = Time.time;
         tolerance = 20;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-        if(DetectChange(HandModel._ha)
-	
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (DetectChange(hand.GetLeapHand()))
+        {
+            if (Time.time - holdPositionTime >= 2500)
+            {
+                gestures.Add(holdHand);
+            }
+            holdPositionTime = Time.time;
+            holdHand = hand.GetLeapHand();
+        }
+        if (gestures.Count - 1 == correct.Count)
+            success = CheckPass();
+
+    }
 
     void CopyHand(Hand curr)
     {
