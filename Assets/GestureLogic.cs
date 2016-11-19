@@ -63,6 +63,18 @@ public class GestureLogic : MonoBehaviour {
         return true;
     }
 
+    List <string> ToStringArray(Hand curr)
+    {
+        List<string> result = new List<string>;
+        result.Add(curr.PalmPosition.x.ToString());
+        result.Add(curr.PalmPosition.y.ToString());
+        result.Add(curr.PalmPosition.z.ToString());
+        for(int i = 0; i < curr.Fingers.Count; i++)
+        {
+
+        }
+    }
+
     //compares inputted gesture sequence to current set PassShake. Returns true for success, false for failure.
     bool CheckPass()
     {
