@@ -8,65 +8,101 @@ using UnityEngine;
 using System.Collections;
 using Leap;
 
-namespace Leap.Unity {
-  /** A physics model for our rigid hand made out of various Unity Collider. */
-  public class RigidHand : SkeletalHand {
-    public override ModelType HandModelType {
-      get {
-        return ModelType.Physics;
-      }
-    }
-    public float filtering = 0.5f;
-
-    public override bool SupportsEditorPersistence() {
-      return true;
-    }
-
-    public override void InitHand() {
-      base.InitHand();
-    }
-
-    public override void UpdateHand() {
-
-      for (int f = 0; f < fingers.Length; ++f) {
-        if (fingers[f] != null) {
-          fingers[f].UpdateFinger();
+namespace Leap.Unity
+{
+    /** A physics model for our rigid hand made out of various Unity Collider. */
+    public class RigidHand : SkeletalHand
+    {
+        public override ModelType HandModelType
+        {
+            get
+            {
+                return ModelType.Physics;
+            }
         }
-      }
+        public float filtering = 0.5f;
 
-      if (palm != null) {
-        Rigidbody palmBody = palm.GetComponent<Rigidbody>();
-        if (palmBody) {
-          palmBody.MovePosition(GetPalmCenter());
-          palmBody.MoveRotation(GetPalmRotation());
-        } else {
-          palm.position = GetPalmCenter();
-          palm.rotation = GetPalmRotation();
-        }
-      }
-
-      if (forearm != null) {
-        // Set arm dimensions.
-        CapsuleCollider capsule = forearm.GetComponent<CapsuleCollider>();
-        if (capsule != null) {
-          // Initialization
-          capsule.direction = 2;
-          forearm.localScale = new Vector3(1f / transform.lossyScale.x, 1f / transform.lossyScale.y, 1f / transform.lossyScale.z);
-
-          // Update
-          capsule.radius = GetArmWidth() / 2f;
-          capsule.height = GetArmLength() + GetArmWidth();
+        public override bool SupportsEditorPersistence()
+        {
+            return true;
         }
 
-        Rigidbody forearmBody = forearm.GetComponent<Rigidbody>();
-        if (forearmBody) {
-          forearmBody.MovePosition(GetArmCenter());
-          forearmBody.MoveRotation(GetArmRotation());
-        } else {
-          forearm.position = GetArmCenter();
-          forearm.rotation = GetArmRotation();
+        public override void InitHand()
+        {
+            base.InitHand();
         }
-      }
+
+        public override void UpdateHand()
+        {
+            Rigidbody palmBody;
+            for (int f = 0; f < fingers.Length; ++f)
+            {
+                if (fingers[f] != null)
+                {
+                    fingers[f].UpdateFinger();
+                }
+            }
+
+            if (palm != null)
+            {
+                palmBody = palm.GetComponent<Rigidbody>();
+                if (palmBody)
+                {
+                    palmBody.MovePosition(GetPalmCenter());
+                    palmBody.MoveRotation(GetPalmRotation());
+                }
+                else {
+                    palm.position = GetPalmCenter();
+                    palm.rotation = GetPalmRotation();
+                }
+            }
+
+            GameObject[] gameObjects = gameObject.scene.GetRootGameObjects();
+            int i = 0;
+            for (i = 0; i < gameObjects.Length && !gameObjects[i].ToString().StartsWith("LeapHandController"); i++) ;
+
+            float differenceX = GetPalmCenter().x - gameObjects[i].transform.position.x;
+            float differenceY = GetPalmCenter().y - gameObjects[i].transform.position.y;
+            float differenceZ = GetPalmCenter().z - gameObjects[i].transform.position.z;
+
+            Vector3 vec = new Vector3(0, 0, 0);
+
+            vec.x = differenceX * 2;
+            vec.y = differenceY * 2;
+            vec.z = differenceZ * 2;
+
+            palmBody = palm.GetComponent<Rigidbody>();
+            if(palmBody)
+            {
+                palmBody.MovePosition(palm.position + vec);
+            }
+            else
+            {
+                palm.Translate(vec);
+            }
+            for (int f = 0; f < fingers.Length; ++f)
+            {
+                if (fingers[f] != null)
+                {
+                    FingerModel finger = fingers[f];
+                    for (int b = 0; b < finger.bones.Length; ++b)
+                    {
+                        Transform bone = finger.bones[b];
+                        if(bone)
+                        {
+                            Rigidbody boneBody = bone.GetComponent<Rigidbody>();
+                            if (boneBody)
+                            {
+                                boneBody.MovePosition(vec + bone.position);
+                            }
+                            else
+                            {
+                                bone.Translate(vec);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
 }

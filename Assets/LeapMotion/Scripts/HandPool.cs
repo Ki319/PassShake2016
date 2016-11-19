@@ -22,6 +22,11 @@ namespace Leap.Unity {
     private Transform ModelsParent;
     [SerializeField]
     private List<ModelGroup> ModelPool;
+
+        public bool lockX;
+        public bool lockY;
+        public bool lockZ;
+
     private List<HandProxy> activeHandReps = new List<HandProxy>();
 
     private Dictionary<IHandModel, ModelGroup> modelGroupMapping = new Dictionary<IHandModel, ModelGroup>();
