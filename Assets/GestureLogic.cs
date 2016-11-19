@@ -6,9 +6,12 @@ using System.Collections.Generic;
 
 public class GestureLogic : MonoBehaviour {
 
-    private List<Hand> gestures = new List<Hand>();
+    private List<Hand> gestures = new List<Hand>(); //List of gesture so far
+    private Time holdPosition;                      //Time that certain position is held
+    private static Hand holdHand;                        //Last state of hand before position hold
 
 	void Start () {
+        holdHand = 
 	
 	}
 	
@@ -16,4 +19,9 @@ public class GestureLogic : MonoBehaviour {
 	void Update () {
 	
 	}
+
+    void CopyHand(Hand curr)
+    {
+
+    }
 }
