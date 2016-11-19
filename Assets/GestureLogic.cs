@@ -3,6 +3,7 @@ using System.Collections;
 using Leap;
 using Leap.Unity;
 using System.Collections.Generic;
+using System.IO;
 
 public class GestureLogic : MonoBehaviour {
 
@@ -14,11 +15,16 @@ public class GestureLogic : MonoBehaviour {
     private RigidHand hand;
     public int tolerance;                          //leeway in mm
     private bool success;
+    private string path = "./password.txt";
+    public bool passwordExists;
 
 	void Start () {
+        hand.InitHand();
         CopyHand(hand.GetLeapHand());
         holdPositionTime = Time.time;
         tolerance = 20;
+        loadPassword();
+        success = false;
 	}
 
     // Update is called once per frame
@@ -35,7 +41,34 @@ public class GestureLogic : MonoBehaviour {
         }
         if (gestures.Count - 1 == correct.Count)
             success = CheckPass();
+    }
 
+    private void loadPassword()
+    {
+        if (File.Exists(path))
+        {
+            passwordExists = true;
+            using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
+            {
+                bool done = false;
+                while(done == false)
+                {
+                    try
+                    {
+
+                    } catch (EndOfStreamException e)
+                    {
+                        done = true;
+                    }
+                }
+            }
+        }
+        passwordExists = false;
+    }
+    
+    public bool getSuccess()
+    {
+        return success;
     }
 
     void CopyHand(Hand curr)
@@ -78,8 +111,6 @@ public class GestureLogic : MonoBehaviour {
     //compares inputted gesture sequence to current set PassShake. Returns true for success, false for failure.
     bool CheckPass()
     {
-        if(gestures.Count - 1 == correct.Count) //including end gesture in sequence. checks to see if lengths are equal.
-        {
             for(int i = 0; i < correct.Count; i++)
             {
                 for(int j = 0; j < gestures[i].Fingers.Count; j++)
@@ -93,7 +124,5 @@ public class GestureLogic : MonoBehaviour {
                 }
             }
             return true;
-        }
-        return false;
     }
 }
