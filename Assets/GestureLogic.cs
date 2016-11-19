@@ -11,7 +11,8 @@ public class GestureLogic : MonoBehaviour {
     private float holdPositionTime;                      //Time that certain position is held
     private static Hand holdHand;   //Last state of hand before position hold
     public Hand endHand;
-    private CapsuleHand hand;
+    private RigidHand hand;
+    public int tolerance; //leeway in mm
 
 	void Start () {
         CopyHand(hand.GetLeapHand());
@@ -31,19 +32,19 @@ public class GestureLogic : MonoBehaviour {
 
     bool DetectChange(Hand curr)
     {
-        if (curr.PalmPosition.x - holdHand.PalmPosition.x >= 20)
+        if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
             return false;
-        else if (curr.PalmPosition.x - holdHand.PalmPosition.x >= 20)
+        else if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
             return false;
-        else if (curr.PalmPosition.x - holdHand.PalmPosition.x >= 20)
+        else if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
             return false;
         for(int i = 0; i < curr.Fingers.Count; i++)
         {
-            if(curr.Fingers[i].StabilizedTipPosition.x - holdHand.Fingers[i].StabilizedTipPosition.x >= 20)
+            if(Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.x - holdHand.Fingers[i].StabilizedTipPosition.x) >= tolerance)
                 return false;
-            else if (curr.Fingers[i].StabilizedTipPosition.y - holdHand.Fingers[i].StabilizedTipPosition.y >= 20)
+            else if (Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.y - holdHand.Fingers[i].StabilizedTipPosition.y) >= tolerance)
                 return false;
-            else if (curr.Fingers[i].StabilizedTipPosition.z - holdHand.Fingers[i].StabilizedTipPosition.z >= 20)
+            else if (Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.z - holdHand.Fingers[i].StabilizedTipPosition.z) >= tolerance)
                 return false;
         }
         return true;
@@ -58,11 +59,15 @@ public class GestureLogic : MonoBehaviour {
             {
                 for(int j = 0; j < gestures[i].Fingers.Count; j++)
                 {
-                    if ((gestures[i].Fingers[j].StabilizedTipPosition.x - gestures[i].PalmPosition.x) - (correct[i].Fingers[j].StabilizedTipPosition.x - correct[i].PalmPosition.x) >= 20)
+                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.x - gestures[i].PalmPosition.x) - (correct[i].Fingers[j].StabilizedTipPosition.x - correct[i].PalmPosition.x)) >= tolerance)
                         return false;
-
+                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.y - gestures[i].PalmPosition.y) - (correct[i].Fingers[j].StabilizedTipPosition.y - correct[i].PalmPosition.y)) >= tolerance)
+                        return false;
+                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.z - gestures[i].PalmPosition.z) - (correct[i].Fingers[j].StabilizedTipPosition.z - correct[i].PalmPosition.z)) >= tolerance)
+                        return false;
                 }
             }
+            return true;
         }
         return false;
     }
