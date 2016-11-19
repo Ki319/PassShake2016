@@ -24,15 +24,6 @@ namespace Leap.Unity
         private Chirality handedness;
 
         [SerializeField]
-        private bool _lockX = false;
-
-        [SerializeField]
-        private bool _lockY = false;
-
-        [SerializeField]
-        private bool _lockZ = false;
-
-        [SerializeField]
         private Material _material;
 
         [SerializeField]
@@ -165,23 +156,25 @@ namespace Leap.Unity
             int i = 0;
             for (i = 0; i < gameObjects.Length && !gameObjects[i].ToString().StartsWith("LeapHandController"); i++) ;
 
+            HandPool handpool = gameObjects[i].GetComponent<HandPool>();
+
             float differenceX = palmPositionSphere.position.x - gameObjects[i].transform.position.x;
             float differenceY = palmPositionSphere.position.y - gameObjects[i].transform.position.y;
             float differenceZ = palmPositionSphere.position.z - gameObjects[i].transform.position.z;
 
             Vector3 vec = new Vector3(0, 0, 0);
 
-            if (_lockX)
+            if (handpool.lockX)
                 vec.x = -differenceX;
             else
                 vec.x = differenceX * 2;
 
-            if (_lockY)
+            if (handpool.lockY)
                 vec.y = -differenceY;
             else
                 vec.y = differenceY * 2;
 
-            if (_lockZ)
+            if (handpool.lockZ)
                 vec.z = -differenceZ;
             else
                 vec.z = differenceZ * 2;
