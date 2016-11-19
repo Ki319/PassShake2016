@@ -28,4 +28,7 @@ public class Scene_Manager : MonoBehaviour {
     {
         LoadScene("Successful_Login");
     }
+    public void exitApplication(){
+        Application.Quit();
+    }
 }
