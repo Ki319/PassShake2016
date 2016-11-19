@@ -14,7 +14,7 @@ public class GestureLogic : MonoBehaviour {
 
 	void Start () {
         Hand curr = 
-        CopyHand(curr.GetLeapHand());
+        CopyHand(HandModel.GetLeapHand());
         holdPositionTime = Time.time;
 	}
 	
