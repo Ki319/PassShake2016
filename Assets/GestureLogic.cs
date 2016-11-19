@@ -13,6 +13,7 @@ public class GestureLogic : MonoBehaviour {
     public Hand endHand;
     private RigidHand hand;
     public int tolerance;                          //leeway in mm
+    private bool success;
 
 	void Start () {
         CopyHand(hand.GetLeapHand());
