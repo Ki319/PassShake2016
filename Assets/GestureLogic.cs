@@ -17,6 +17,7 @@ public class GestureLogic : MonoBehaviour {
     private bool success;
     private string path = "./password.txt";
     public bool passwordExists;
+    private int mode;
 
 	void Start () {
         hand.InitHand();
@@ -25,22 +26,36 @@ public class GestureLogic : MonoBehaviour {
         tolerance = 20;
         loadPassword();
         success = false;
+        mode = 0;
 	}
 
     // Update is called once per frame
     void Update()
     {
-        if (DetectChange(hand.GetLeapHand()))
+        if (mode == 0)
         {
-            if (Time.time - holdPositionTime >= 2500)
+            if (DetectChange(hand.GetLeapHand()))
             {
-                gestures.Add(holdHand);
+                if (Time.time - holdPositionTime >= 2500)
+                {
+                    gestures.Add(holdHand);
+                }
+                holdPositionTime = Time.time;
+                holdHand = hand.GetLeapHand();
             }
-            holdPositionTime = Time.time;
-            holdHand = hand.GetLeapHand();
+            if (gestures.Count - 1 == correct.Count)
+                success = CheckPass();
         }
-        if (gestures.Count - 1 == correct.Count)
-            success = CheckPass();
+        else if(mode == 1)
+        {
+            if(DetectChange(hand.GetLeapHand()))
+            {
+                if(Time.time - holdPositionTime >= 2500)
+                {
+                    WriteFile(hand.GetLeapHand());
+                }
+            }
+        }
     }
 
     private void loadPassword()
@@ -104,8 +119,11 @@ public class GestureLogic : MonoBehaviour {
         result.Add(curr.PalmPosition.z.ToString());
         for(int i = 0; i < curr.Fingers.Count; i++)
         {
-
+            result.Add(curr.Fingers[i].StabilizedTipPosition.x.ToString());
+            result.Add(curr.Fingers[i].StabilizedTipPosition.y.ToString());
+            result.Add(curr.Fingers[i].StabilizedTipPosition.z.ToString());
         }
+        return result;
     }
 
     //compares inputted gesture sequence to current set PassShake. Returns true for success, false for failure.
