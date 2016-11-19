@@ -1,15 +1,31 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class Scene_Manager : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    void LoadScene(string Destination)
+    {
+        SceneManager.LoadScene(Destination);
+    }
+
+    void LoadCreatePassword()
+    {
+        LoadScene("Set_Shake");
+    }
+
+    void LoadTestPassword()
+    {
+        LoadScene("Test_Shake");
+    }
+
+    void LoadMainMenu()
+    {
+        LoadScene("MainMenu");
+    }
+
+    void LoadSuccess()
+    {
+        LoadScene("Successful_Login");
+    }
 }
