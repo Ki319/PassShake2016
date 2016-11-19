@@ -53,7 +53,7 @@ public class GestureLogic : BaseInputModule {
         mode = 0;
 	}
 
-    //Update the Head Yaw for Calculating "Shoulder Positions"
+    //Update the Head Yaw for Calculating "Shoulder Positions"s
     void Update()
     {
         currentFrame = LeapDataProvider.CurrentFrame;
