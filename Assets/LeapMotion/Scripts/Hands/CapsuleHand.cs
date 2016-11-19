@@ -24,7 +24,13 @@ namespace Leap.Unity
         private Chirality handedness;
 
         [SerializeField]
-        private bool _showArm = false;
+        private bool _lockX = false;
+
+        [SerializeField]
+        private bool _lockY = false;
+
+        [SerializeField]
+        private bool _lockZ = false;
 
         [SerializeField]
         private Material _material;
@@ -155,19 +161,39 @@ namespace Leap.Unity
             //Update the spheres first
             updateSpheres();
 
-            float differenceZ = palmPositionSphere.position.z + 9.5f;
-            float differenceY = palmPositionSphere.position.y - .55f;
-            float differenceX = palmPositionSphere.position.x;
-            Vector3 vec = new Vector3(differenceX * 2, differenceY * 2, -differenceZ);
+            GameObject[] gameObjects = gameObject.scene.GetRootGameObjects();
+            int i = 0;
+            for (i = 0; i < gameObjects.Length && !gameObjects[i].ToString().StartsWith("LeapHandController"); i++) ;
 
-            for (int i = 0; i < _cylinderTransforms.Count; i++)
+            float differenceX = palmPositionSphere.position.x - gameObjects[i].transform.position.x;
+            float differenceY = palmPositionSphere.position.y - gameObjects[i].transform.position.y;
+            float differenceZ = palmPositionSphere.position.z - gameObjects[i].transform.position.z;
+
+            Vector3 vec = new Vector3(0, 0, 0);
+
+            if (_lockX)
+                vec.x = -differenceX;
+            else
+                vec.x = differenceX * 2;
+
+            if (_lockY)
+                vec.y = -differenceY;
+            else
+                vec.y = differenceY * 2;
+
+            if (_lockZ)
+                vec.z = -differenceZ;
+            else
+                vec.z = differenceZ * 2;
+
+            for (i = 0; i < _cylinderTransforms.Count; i++)
             {
                 Transform cylinder = _cylinderTransforms[i];
 
                 cylinder.Translate(vec);
             }
 
-            for(int i = 0; i < _serializedTransforms.Count; i++)
+            for(i = 0; i < _serializedTransforms.Count; i++)
             {
                 Transform sphere = _serializedTransforms[i];
 
