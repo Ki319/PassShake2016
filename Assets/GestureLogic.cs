@@ -46,9 +46,9 @@ public class GestureLogic : MonoBehaviour {
     {
         if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
             return false;
-        else if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
+        else if (Mathf.Abs(curr.PalmPosition.y - holdHand.PalmPosition.y) >= tolerance)
             return false;
-        else if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
+        else if (Mathf.Abs(curr.PalmPosition.z - holdHand.PalmPosition.z) >= tolerance)
             return false;
         for(int i = 0; i < curr.Fingers.Count; i++)
         {
