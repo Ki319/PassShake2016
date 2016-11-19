@@ -1,27 +1,51 @@
 ﻿using UnityEngine;
-using System.Collections;
-using Leap;
-using Leap.Unity;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using System.Collections.Generic;
-using System.IO;
+using Leap.Unity;
+using Leap;
+using System;
 
-public class GestureLogic : MonoBehaviour {
+public class GestureLogic : BaseInputModule {
+
+    [Header(" Interaction Setup")]
+    [Tooltip("The current Leap Data Provider for the scene.")]
+    public LeapProvider LeapDataProvider;
 
     private List<Hand> gestures = new List<Hand>();//List of gesture so far
     public List<Hand> correct = new List<Hand>();  //Correct passshake
     private float holdPositionTime;                //Time that certain position is held
-    private static Hand holdHand;                  //Last state of hand before position hold
-    public Hand endHand;
-    private RigidHand hand;
+    private static List<float[]>[] startHand; //Last state of hand before position hold
+
+    private Frame currentFrame;
+    public List<float[]>[] endHand;
     public int tolerance;                          //leeway in mm
     private bool success;
     private string path = "./password.txt";
     public bool passwordExists;
     private int mode;
 
-	void Start () {
-        hand.InitHand();
-        CopyHand(hand.GetLeapHand());
+    protected override void Start()
+    {
+        base.Start();
+
+        if (LeapDataProvider == null)
+        {
+            LeapDataProvider = FindObjectOfType<LeapProvider>();
+            if (LeapDataProvider == null || !LeapDataProvider.isActiveAndEnabled)
+            {
+                Debug.LogError("Cannot use LeapImageRetriever if there is no LeapProvider!");
+                enabled = false;
+                return;
+            }
+        }
+        
+        startHand[0] = new List<float[]>();
+        startHand[1] = new List<float[]>();
+
+        endHand[0] = new List<float[]>();
+        endHand[1] = new List<float[]>();
         holdPositionTime = Time.time;
         tolerance = 20;
         loadPassword();
@@ -29,8 +53,19 @@ public class GestureLogic : MonoBehaviour {
         mode = 0;
 	}
 
-    // Update is called once per frame
+    //Update the Head Yaw for Calculating "Shoulder Positions"
     void Update()
+    {
+        currentFrame = LeapDataProvider.CurrentFrame;
+    }
+
+    public override void Process()
+    {
+        throw new NotImplementedException();
+    }
+
+    // Update is called once per frame
+    void OnFixedFrame(Frame frame)
     {
         if (mode == 0)
         {
@@ -111,11 +146,6 @@ public class GestureLogic : MonoBehaviour {
     public bool getSuccess()
     {
         return success;
-    }
-
-    void CopyHand(Hand curr)
-    {
-        holdHand = curr;
     }
 
     bool DetectChange(Hand curr)
