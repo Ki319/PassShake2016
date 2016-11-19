@@ -52,7 +52,8 @@ public class GestureLogic : MonoBehaviour {
             {
                 if(Time.time - holdPositionTime >= 2500)
                 {
-                    WriteFile(hand.GetLeapHand());
+                    writePassword(hand.GetLeapHand());
+                    passwordExists = true;
                 }
             }
         }
@@ -80,7 +81,20 @@ public class GestureLogic : MonoBehaviour {
         }
         passwordExists = false;
     }
-    
+
+    private void writePassword(Hand curr)
+    {
+        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Append)))
+        {
+            List<string> coordinates = ToStringArray(curr);
+            for (int i = 0; i < coordinates.Count; i++)
+            {
+                writer.Write(coordinates[i]);
+                writer.Write(" ");
+            }
+        }
+    }
+
     public bool getSuccess()
     {
         return success;
@@ -113,7 +127,7 @@ public class GestureLogic : MonoBehaviour {
 
     List <string> ToStringArray(Hand curr)
     {
-        List<string> result = new List<string>;
+        List<string> result = new List<string>();
         result.Add(curr.PalmPosition.x.ToString());
         result.Add(curr.PalmPosition.y.ToString());
         result.Add(curr.PalmPosition.z.ToString());
