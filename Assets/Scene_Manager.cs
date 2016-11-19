@@ -4,27 +4,27 @@ using System.Collections;
 
 public class Scene_Manager : MonoBehaviour {
 
-    void LoadScene(string Destination)
+    public void LoadScene(string Destination)
     {
         SceneManager.LoadScene(Destination);
     }
 
-    void LoadCreatePassword()
+    public void LoadCreatePassword()
     {
         LoadScene("Set_Shake");
     }
 
-    void LoadTestPassword()
+    public void LoadTestPassword()
     {
         LoadScene("Test_Shake");
     }
 
-    void LoadMainMenu()
+    public void LoadMainMenu()
     {
         LoadScene("MainMenu");
     }
 
-    void LoadSuccess()
+    public void LoadSuccess()
     {
         LoadScene("Successful_Login");
     }
