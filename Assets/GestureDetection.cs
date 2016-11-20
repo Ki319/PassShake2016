@@ -297,17 +297,17 @@ namespace PassShake
 
         private bool CheckTerminator(float[][][] handPosition)
         {
-            return CheckPositions(sequenceTerminator, handPosition, 2);
+            return CheckPositions(sequenceTerminator, handPosition, 1.5f);
         }
 
         private bool CheckResetter(float[][][] handPosition)
         {
-            return CheckPositions(sequenceResetter, handPosition, 2);
+            return CheckPositions(sequenceResetter, handPosition, 1.5f);
         }
 
         private bool DetectChange(float[][][] handPosition)
         {
-            return CheckPositions(startPosition, handPosition);
+            return CheckPositions(startPosition, handPosition, 1.5f);
         }
 
         private bool CheckPositions(float[][][] firstPosition, float[][][] handPosition, float scale = 1)
