@@ -79,6 +79,39 @@ public class GestureLogic : BaseInputModule {
         finisher[1][5][0] = 0.01607722f;
         finisher[1][5][1] = 0.7070413f;
         finisher[1][5][2] = -9.476624f;
+
+        /*resetter = new float[2][][];
+        for (int i = 0; i < 2; i++)
+        {
+            resetter[i] = new float[6][];
+            for (int j = 0; j < 6; j++)
+            {
+                resetter[i][j] = new float[3];
+                for (int k = 0; k < 3; k++)
+                {
+                    if (i == 0)
+                        resetter[i][j][k] = 0.0f;
+                }
+            }
+        }
+        resetter[1][0][0] = 0.005362828f;
+        resetter[1][0][1] = 0.7433285f;
+        resetter[1][0][2] = -9.486539f;
+        resetter[1][1][0] = -0.08700792f;
+        resetter[1][1][1] = 0.7299139f;
+        resetter[1][1][2] = -9.482934f;
+        resetter[1][2][0] = -0.01756124f;
+        resetter[1][2][1] = 0.7061447f;
+        resetter[1][2][2] = -9.481342f;
+        resetter[1][3][0] = -0.007958782f;
+        resetter[1][3][1] = 0.7018657f;
+        resetter[1][3][2] = -9.483487f;
+        resetter[1][4][0] = 0.006049518f;
+        resetter[1][4][1] = 0.7037531f;
+        resetter[1][4][2] = -9.484939f;
+        resetter[1][5][0] = 0.01607722f;
+        resetter[1][5][1] = 0.7070413f;
+        resetter[1][5][2] = -9.476624f;*/
     }
 
     //Update the Head Yaw for Calculating "Shoulder Positions"s
@@ -319,6 +352,8 @@ public class GestureLogic : BaseInputModule {
 
     bool CheckFinisher(float[][][] check)
     {
+        if (check[1][1][0] >= check[1][0][0])
+            return false;
         for (int k = 1; k < 6; k++) //for the fingers
         {
             for (int l = 0; l < 3; l++) //for x, y, z
@@ -329,4 +364,19 @@ public class GestureLogic : BaseInputModule {
         }
         return true;
     }
+
+    /*bool CheckResetter(float[][][] check)
+    {
+        if (check[1][1][0] <= check[1][0][0])
+            return false;
+        for (int k = 1; k < 6; k++) //for the fingers
+        {
+            for (int l = 0; l < 3; l++) //for x, y, z
+            {
+                if (Mathf.Abs((check[1][k][l] - check[1][0][l]) - (resetter[1][k][l] - resetter[1][0][l])) >= tolerance)
+                    return false;
+            }
+        }
+        return true;
+    }*/
 }
