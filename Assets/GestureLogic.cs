@@ -184,14 +184,16 @@ public class GestureLogic : BaseInputModule {
     {
             for(int i = 0; i < correct.Count; i++)
             {
-                for(int j = 0; j < gestures[i].Fingers.Count; j++)
+                for(int j = 0; j < 2; j++) //for both hands
                 {
-                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.x - gestures[i].PalmPosition.x) - (correct[i].Fingers[j].StabilizedTipPosition.x - correct[i].PalmPosition.x)) >= tolerance)
-                        return false;
-                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.y - gestures[i].PalmPosition.y) - (correct[i].Fingers[j].StabilizedTipPosition.y - correct[i].PalmPosition.y)) >= tolerance)
-                        return false;
-                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.z - gestures[i].PalmPosition.z) - (correct[i].Fingers[j].StabilizedTipPosition.z - correct[i].PalmPosition.z)) >= tolerance)
-                        return false;
+                    for(int k = 1; k < 6; k++) //for the fingers
+                    {
+                        for(int l = 0; l < 3; l++) //for x, y, z
+                        {
+                           if (Mathf.Abs((gestures[i][j][k][l] - gestures[i][j][0][l]) - (correct[i][j][k][l] - correct[i][j][0][l])) >= tolerance)
+                                return false;
+                        }
+                    }
                 }
             }
             return true;
