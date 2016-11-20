@@ -29,6 +29,7 @@ public class GestureLogic : BaseInputModule {
     private string path = "./password.txt";
     public bool passwordExists;
     private int mode;
+    CheckmarkSprite checkmark;
 
     protected override void Start()
     {
@@ -330,6 +331,15 @@ public class GestureLogic : BaseInputModule {
                 }
             }
         }
+
+
+        if (Time.time - startPositionTime >= 2000)
+        {
+            gestures.Add(hands);
+            checkmark.show();
+        }
+        startPositionTime = Time.time;
+        startHands = hands;
 
         return true;
     }
