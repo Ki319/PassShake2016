@@ -295,8 +295,7 @@ public class GestureLogic : BaseInputModule {
                         startPositionTime = Time.time;
                         startHands = hands;
                     }
-                }
-                
+                }   
             }
         }
         
@@ -386,7 +385,7 @@ public class GestureLogic : BaseInputModule {
                     {
                         for(int l = 0; l < 3; l++) //for x, y, z
                         {
-                           if (Mathf.Abs((gestures[i][j][k][l] - gestures[i][j][0][l]) - (correct[i][j][k][l] - correct[i][j][0][l])) >= tolerance)
+                           if (Mathf.Abs(Mathf.Abs(gestures[i][j][k][l] - gestures[i][j][0][l]) - Mathf.Abs(correct[i][j][k][l] - correct[i][j][0][l])) >= tolerance)
                                 return false;
                         }
                     }
@@ -403,7 +402,7 @@ public class GestureLogic : BaseInputModule {
         {
             for (int l = 0; l < 3; l++) //for x, y, z
             {
-                if (Mathf.Abs((check[1][k][l] - check[1][0][l]) - (finisher[1][k][l] - finisher[1][0][l])) >= tolerance)
+                if (Mathf.Abs(Mathf.Abs(check[1][k][l] - check[1][0][l]) - Mathf.Abs(finisher[1][k][l] - finisher[1][0][l])) >= tolerance)
                     return false;
             }
         }
@@ -418,7 +417,7 @@ public class GestureLogic : BaseInputModule {
         {
             for (int l = 0; l < 3; l++) //for x, y, z
             {
-                if (Mathf.Abs((check[1][k][l] - check[1][0][l]) - (resetter[1][k][l] - resetter[1][0][l])) >= tolerance)
+                if (Mathf.Abs(Mathf.Abs(check[1][k][l] - check[1][0][l]) - Mathf.Abs(resetter[1][k][l] - resetter[1][0][l])) >= tolerance)
                     return false;
             }
         }
