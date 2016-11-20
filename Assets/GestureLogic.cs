@@ -234,7 +234,16 @@ public class GestureLogic : BaseInputModule {
                     CheckPass();
                     return;
                 }
-                DetectChange(hands);
+                if(DetectChange(hands));
+                {
+                    if (Time.time - startPositionTime >= 2000)
+                    {
+                        gestures.Add(hands);
+                        //SpriteRenderer.Enabled = true;
+                    }
+                }
+                startPositionTime = Time.time;
+                startHands = hands;
             }
             else if (mode == 1)
             {
@@ -244,7 +253,16 @@ public class GestureLogic : BaseInputModule {
                     mode = 0;
                     return;
                 }
-                correct.Add(hands);
+                if (DetectChange(hands)) ;
+                {
+                    if (Time.time - startPositionTime >= 2000)
+                    {
+                        correct.Add(hands);
+                        //SpriteRenderer.Enabled = true;
+                    }
+                }
+                startPositionTime = Time.time;
+                startHands = hands;
             }
         }
         
@@ -279,14 +297,6 @@ public class GestureLogic : BaseInputModule {
                 }
             }
         }
-
-        if (Time.time - startPositionTime >= 2000)
-        {
-            gestures.Add(hands);
-            //SpriteRenderer.Enabled = true;
-        }
-        startPositionTime = Time.time;
-        startHands = hands;
 
         return true;
     }
