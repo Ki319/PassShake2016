@@ -277,34 +277,6 @@ namespace PassShake
             }
         }
 
-        public float[][][] averageTerminators()
-        {
-            termList = terminators.getHandGesture();
-            float[][][] result = genGesture();
-            for (int t = 0; t < termList.Count; t++)
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    for (int j = 0; j < 6; j++)
-                    {
-                        for (int k = 0; k < 3; k++)
-                        {
-                            result[i][j][k] += termList[t][i][j][k];
-                        }
-                    }
-                }
-            }
-            for (int i = 0; i < 6; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    result[0][i][j] /= termList.Count;
-                    result[1][i][j] /= termList.Count;
-                }
-            }
-            return result;
-        }
-
         private bool nonZero(float[][][] handPosition)
         {
             for (int i = 0; i < 2; i++)
@@ -313,7 +285,7 @@ namespace PassShake
                 {
                     for (int k = 0; k < 3; k++)
                     {
-                        if (Mathf.Abs(handPosition[i][j][k]) >= .01)
+                        if (Mathf.Abs(handPosition[i][j][k]) >= .01f)
                             return true;
                     }
                 }
@@ -339,8 +311,7 @@ namespace PassShake
 
         private bool CheckPositions(float[][][] firstPosition, float[][][] handPosition, float scale = 1)
         {
-            float f = handPosition[0][5][2];
-            float f2 = firstPosition[0][5][1];
+            float current = 0;
             float total = 0;
             for (int i = 0; i < 2; i++)
             {
@@ -348,8 +319,11 @@ namespace PassShake
                 {
                     for (int k = 0; k < 3; k++)
                     {
-                        total += Mathf.Abs(handPosition[i][j][k] - firstPosition[i][j][k]);
+                        current = Mathf.Abs(handPosition[i][j][k] - firstPosition[i][j][k]);
+                        total += current;
                         if (total >= tolerance * scale)
+                            return true;
+                        if (current >= (tolerance * scale) / 5f)
                             return true;
                     }
                 }
