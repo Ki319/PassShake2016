@@ -218,7 +218,7 @@ public class GestureLogic : BaseInputModule {
             gestures.Add(hands);
         }
         startPositionTime = Time.time;
-        startHand = hands;
+        startHands = hands;
 
         return true;
     }
@@ -231,7 +231,7 @@ public class GestureLogic : BaseInputModule {
             {
                 for (int k = 0; k < 3; k++) //x, y, z
                 {
-                    if (Mathf.Abs(hands[i][j][k] - startHand[i][j][k]) <= tolerance) //checks to see if currenthand has moved more than tolerance mm
+                    if (Mathf.Abs(hands[i][j][k] - startHands[i][j][k]) <= tolerance) //checks to see if currenthand has moved more than tolerance mm
                         return false;
                 }
             }
@@ -242,7 +242,7 @@ public class GestureLogic : BaseInputModule {
             gestures.Add(hands);
         }
         startPositionTime = Time.time;
-        startHand = hands;
+        startHands = hands;
 
         return true;
     }
