@@ -13,13 +13,13 @@ public class GestureLogic : BaseInputModule {
     [Tooltip("The current Leap Data Provider for the scene.")]
     public LeapProvider LeapDataProvider;
 
-    private List<List<float[][][]> gestures = new List<List<float[]>[]> ();//List of gesture so far
-    public List<float[][][]> correct = new List<List<float[]>[]> ();  //Correct passshake
+    private List<float[][][]> gestures = new List<float[][][]> ();//List of gesture so far
+    public List<float[][][]> correct = new List<float[][][]> ();  //Correct passshake
     private float holdPositionTime;                //Time that certain position is held
     private float[][][] startHand; //Last state of hand before position hold
 
     private Frame currentFrame;
-    public List<float[]>[] endHand;
+    public float[][][] endHand;
     public int tolerance;                          //leeway in mm
     private bool success;
     private string path = "./password.txt";
@@ -40,12 +40,6 @@ public class GestureLogic : BaseInputModule {
                 return;
             }
         }
-        
-        startHand[0] = new List<float[]>();
-        startHand[1] = new List<float[]>();
-
-        endHand[0] = new List<float[]>();
-        endHand[1] = new List<float[]>();
         holdPositionTime = Time.time;
         tolerance = 20;
         loadPassword();
@@ -69,14 +63,9 @@ public class GestureLogic : BaseInputModule {
     {
         if (mode == 0)
         {
-            if (DetectChange(hand.GetLeapHand()))
+            DetectChange(hand.GetLeapHand());
             {
-                if (Time.time - holdPositionTime >= 2500)
-                {
-                    gestures.Add(startHand);
-                }
-                holdPositionTime = Time.time;
-                startHand = hand.GetLeapHand();
+                
             }
             if (gestures.Count - 1 == correct.Count)
                 success = CheckPass();
@@ -148,21 +137,30 @@ public class GestureLogic : BaseInputModule {
         return success;
     }
 
-    bool DetectChange(List<float[]>[] hands)
+    bool DetectChange(float[][][] hands)
     {
+        hands = new float[2][][];
         for (int i = 0; i < 2; i++)
         {
-            List<float[]> currHand = hands[i];
-            for (int j = 0; j < 3; j++)
+            float[][] currHand = new float[6][];
+            for (int j = 0; j < 6; j++)
             {
-                if (Mathf.Abs(currHand[0][j] - holdHand.PalmPosition.x) >= tolerance)
-                for (int k = 1; k < 6; k++)
+                float[] currPart = new float[3];
+                for (int k = 0; k < 3; k++)
                 {
-                    if (Mathf.Abs(currHand[k][j] - holdHand.Fingers[i].StabilizedTipPosition.x) >= tolerance)
+                    if (Mathf.Abs(currPart[k] - holdHand.PalmPosition.x) >= tolerance)
                         return false;
                 }
+                currHand[j] = currPart;
             }
+            hands[i] = currHand;
         }
+        if (Time.time - holdPositionTime >= 2500)
+        {
+            gestures.Add(hands);
+        }
+        holdPositionTime = Time.time;
+
         return true;
     }
 
