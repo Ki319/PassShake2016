@@ -58,6 +58,11 @@ namespace PassShake
                     return;
                 }
             }
+        }
+
+        protected override void Awake()
+        {
+            base.Awake();
 
             data = new PasswordData(path);
 
@@ -236,8 +241,6 @@ namespace PassShake
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    float f1 = f[0][i][j];
-                    float f2 = f[0][0][j];
                     f[0][i][j] -= f[0][0][j];
                     f[1][i][j] -= f[1][0][j];
                 }
@@ -278,6 +281,8 @@ namespace PassShake
 
         private bool CheckPositions(float[][][] firstPosition, float[][][] handPosition)
         {
+            float f = handPosition[0][5][2];
+            float f2 = firstPosition[0][5][1];
             float total = 0;
             for (int i = 0; i < 2; i++)
             {
@@ -297,8 +302,8 @@ namespace PassShake
 
         private bool compareData(List<float[][][]> firstData, List<float[][][]> secondData)
         {
-            Debug.Log(firstData.Count + " " + secondData.Count);
-            if (firstData.Count != secondData.Count)
+            //Debug.Log(firstData.Count + " " + secondData.Count);
+            if (firstData == null || firstData.Count != secondData.Count)
                 return false;
             for (int l = 0; l < firstData.Count; l++)
             {
@@ -312,7 +317,7 @@ namespace PassShake
                         for (int k = 0; k < 3; k++)
                         {
                             total += Mathf.Abs(indexOne[i][j][k] - indexTwo[i][j][k]);
-                            if (total >= tolerance * 2)
+                            if (total >= tolerance)
                                 return false;
                         }
                     }

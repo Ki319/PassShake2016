@@ -26,14 +26,16 @@ namespace PassShake
             {
                 using (BinaryReader reader = new BinaryReader(File.Open(passwordLocation, FileMode.Open)))
                 {
-                    int length = reader.ReadByte();
-                    while (length > 0)
+                    int length = reader.ReadInt32();
+                    for(int k = 0; k < length; k++)
                     {
                         float[][][] gesture = new float[2][][];
                         gesture[0] = new float[6][];
                         gesture[1] = new float[6][];
                         for (int i = 0; i < 6; i ++)
                         {
+                            gesture[0][i] = new float[3];
+                            gesture[1][i] = new float[3];
                             for(int j = 0; j < 3; j ++)
                             {
                                 gesture[0][i][j] = reader.ReadSingle();
@@ -41,7 +43,6 @@ namespace PassShake
                             }
                         }
                         handGestures.Add(gesture);
-                        length--;
                     }
                     reader.Close();
                 }
@@ -51,10 +52,10 @@ namespace PassShake
 
         public void write(string passwordLocation, List<float[][][]> data)
         {
-            using (BinaryWriter writer = new BinaryWriter(File.Open(passwordLocation, FileMode.Append)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open(passwordLocation, FileMode.Create)))
             {
                 int length = data.Count;
-                writer.Write((byte) length);
+                writer.Write(length);
                 for(int i = 0; i < length; i++)
                 {
                     for(int j = 0; j < 6; j++)
