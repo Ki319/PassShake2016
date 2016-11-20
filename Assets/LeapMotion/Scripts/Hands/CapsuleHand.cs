@@ -154,7 +154,7 @@ namespace Leap.Unity
             GameObject[] gameObjects = gameObject.scene.GetRootGameObjects();
             int i = 0;
             for (i = 0; i < gameObjects.Length && !gameObjects[i].ToString().StartsWith("LeapHandController"); i++) ;
-
+            
             HandPool handpool = gameObjects[i].GetComponent<HandPool>();
 
             float differenceX = palmPositionSphere.position.x - gameObjects[i].transform.position.x;
