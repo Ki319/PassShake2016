@@ -21,6 +21,7 @@ public class GestureLogic : BaseInputModule {
 
     private Frame currentFrame;
     public float[][][] endHands;
+    private float[][][] finisher;
     public int tolerance;                          //leeway in mm
     private bool success;
     private string path = "./password.txt";
@@ -46,7 +47,7 @@ public class GestureLogic : BaseInputModule {
         tolerance = 20;
         success = false;
         mode = 0;
-        float[][][] finisher = new float[2][][];
+        finisher = new float[2][][];
         for(int i = 0; i < 2; i++)
         {
             finisher[i] = new float[6][];
@@ -94,104 +95,115 @@ public class GestureLogic : BaseInputModule {
     // Update is called once per frame
     void OnFixedFrame(Frame frame)
     {
-        List<Hand> handList = frame.Hands;
+        if (mode == 0)
+        {
+            List<Hand> handList = frame.Hands;
 
-        //initialize hands position array
-        float[][][] hands = new float[2][][];
-        for(int i = 0; i < 2; i++) //0 is left, 1 is right hand
-        {
-            hands[i] = new float[6][];
-            for(int j = 0; j < 6; j++) //0 is palm, 1-5 are fingers
+            //initialize hands position array
+            float[][][] hands = new float[2][][];
+            for (int i = 0; i < 2; i++) //0 is left, 1 is right hand
             {
-                hands[i][j] = new float[3]; //0, 1, 2 are x, y, z
-            }
-        }
-        for(int i = 0; i < 2; i++)
-        {
-            for(int j = 0; j < 6; j++)
-            {
-                for(int k = 0; k < 3; k++)
+                hands[i] = new float[6][];
+                for (int j = 0; j < 6; j++) //0 is palm, 1-5 are fingers
                 {
-                    hands[i][j][k] = 0.0f;
+                    hands[i][j] = new float[3]; //0, 1, 2 are x, y, z
                 }
             }
-        }
-
-        if(handList.Count != 0)
-        {
-            //Left hand is 0th index, Right hand is 1st index
-            if(handList.Count == 1)
+            for (int i = 0; i < 2; i++)
             {
-               if(handList[0].IsLeft) //Left Hand Only
-               {
-                    //Palm
-                    hands[0][0][0] = handList[0].PalmPosition.x;
-                    hands[0][0][1] = handList[0].PalmPosition.y;
-                    hands[0][0][2] = handList[0].PalmPosition.z;
-                    //fingers
-                    for(int a = 1; a < 6; a++)
+                for (int j = 0; j < 6; j++)
+                {
+                    for (int k = 0; k < 3; k++)
                     {
-                        hands[0][a][0] = handList[0].Fingers[a - 1].TipPosition.x;
-                        hands[0][a][1] = handList[0].Fingers[a - 1].TipPosition.y;
-                        hands[0][a][2] = handList[0].Fingers[a - 1].TipPosition.z;
+                        hands[i][j][k] = 0.0f;
                     }
-     
-               } else { //Right Hand Only
+                }
+            }
+
+            if (handList.Count != 0)
+            {
+                //Left hand is 0th index, Right hand is 1st index
+                if (handList.Count == 1)
+                {
+                    if (handList[0].IsLeft) //Left Hand Only
+                    {
+                        //Palm
+                        hands[0][0][0] = handList[0].PalmPosition.x;
+                        hands[0][0][1] = handList[0].PalmPosition.y;
+                        hands[0][0][2] = handList[0].PalmPosition.z;
+                        //fingers
+                        for (int a = 1; a < 6; a++)
+                        {
+                            hands[0][a][0] = handList[0].Fingers[a - 1].TipPosition.x;
+                            hands[0][a][1] = handList[0].Fingers[a - 1].TipPosition.y;
+                            hands[0][a][2] = handList[0].Fingers[a - 1].TipPosition.z;
+                        }
+
+                    }
+                    else
+                    { //Right Hand Only
+
+                        //Palm
+                        hands[1][0][0] = handList[0].PalmPosition.x;
+                        hands[1][0][1] = handList[0].PalmPosition.y;
+                        hands[1][0][2] = handList[0].PalmPosition.z;
+                        //fingers
+                        for (int a = 1; a < 6; a++)
+                        {
+                            hands[1][a][0] = handList[0].Fingers[a - 1].TipPosition.x;
+                            hands[1][a][1] = handList[0].Fingers[a - 1].TipPosition.y;
+                            hands[1][a][2] = handList[0].Fingers[a - 1].TipPosition.z;
+                        }
+                    }
+                }
+                else if (handList.Count == 2) //Left and Right
+                {
+                    int leftIndex;
+                    int rightIndex;
+                    if (handList[0].IsLeft)
+                    {
+                        leftIndex = 0;
+                        rightIndex = 1;
+                    }
+                    else
+                    {
+                        leftIndex = 1;
+                        rightIndex = 0;
+                    }
 
                     //Palm
-                    hands[1][0][0] = handList[0].PalmPosition.x;
-                    hands[1][0][1] = handList[0].PalmPosition.y;
-                    hands[1][0][2] = handList[0].PalmPosition.z;
+                    hands[0][0][0] = handList[leftIndex].PalmPosition.x;
+                    hands[0][0][1] = handList[leftIndex].PalmPosition.y;
+                    hands[0][0][2] = handList[leftIndex].PalmPosition.z;
                     //fingers
                     for (int a = 1; a < 6; a++)
                     {
-                        hands[1][a][0] = handList[0].Fingers[a - 1].TipPosition.x;
-                        hands[1][a][1] = handList[0].Fingers[a - 1].TipPosition.y;
-                        hands[1][a][2] = handList[0].Fingers[a - 1].TipPosition.z;
+                        hands[0][a][0] = handList[leftIndex].Fingers[a - 1].TipPosition.x;
+                        hands[0][a][1] = handList[leftIndex].Fingers[a - 1].TipPosition.y;
+                        hands[0][a][2] = handList[leftIndex].Fingers[a - 1].TipPosition.z;
+                    }
+
+                    //Palm
+                    hands[1][0][0] = handList[rightIndex].PalmPosition.x;
+                    hands[1][0][1] = handList[rightIndex].PalmPosition.y;
+                    hands[1][0][2] = handList[rightIndex].PalmPosition.z;
+                    //fingers
+                    for (int a = 1; a < 6; a++)
+                    {
+                        hands[1][a][0] = handList[rightIndex].Fingers[a - 1].TipPosition.x;
+                        hands[1][a][1] = handList[rightIndex].Fingers[a - 1].TipPosition.y;
+                        hands[1][a][2] = handList[rightIndex].Fingers[a - 1].TipPosition.z;
                     }
                 }
-            } else if(handList.Count == 2) //Left and Right
-            {
-                int leftIndex;
-                int rightIndex;
-                if(handList[0].IsLeft)
-                {
-                    leftIndex = 0;
-                    rightIndex = 1;
-                } else
-                {
-                    leftIndex = 1;
-                    rightIndex = 0;
-                }
-
-                //Palm
-                hands[0][0][0] = handList[leftIndex].PalmPosition.x;
-                hands[0][0][1] = handList[leftIndex].PalmPosition.y;
-                hands[0][0][2] = handList[leftIndex].PalmPosition.z;
-                //fingers
-                for (int a = 1; a < 6; a++)
-                {
-                    hands[0][a][0] = handList[leftIndex].Fingers[a - 1].TipPosition.x;
-                    hands[0][a][1] = handList[leftIndex].Fingers[a - 1].TipPosition.y;
-                    hands[0][a][2] = handList[leftIndex].Fingers[a - 1].TipPosition.z;
-                }
-
-                //Palm
-                hands[1][0][0] = handList[rightIndex].PalmPosition.x;
-                hands[1][0][1] = handList[rightIndex].PalmPosition.y;
-                hands[1][0][2] = handList[rightIndex].PalmPosition.z;
-                //fingers
-                for (int a = 1; a < 6; a++)
-                {
-                    hands[1][a][0] = handList[rightIndex].Fingers[a - 1].TipPosition.x;
-                    hands[1][a][1] = handList[rightIndex].Fingers[a - 1].TipPosition.y;
-                    hands[1][a][2] = handList[rightIndex].Fingers[a - 1].TipPosition.z;
-                }
+                DetectChange(hands);
             }
-            DetectChange(hands);
+            if (gestures.Count - 1 == correct.Count)
+                success = CheckPass();
         }
-        if (gestures.Count - 1 == correct.Count)
-            success = CheckPass();
+        else if(mode == 1)
+        {
+
+        }
     }
 
     public bool getSuccess()
@@ -281,5 +293,18 @@ public class GestureLogic : BaseInputModule {
                 }
             }
             return true;
+    }
+
+    bool CheckFinisher(float[][][] check)
+    {
+        for (int k = 1; k < 6; k++) //for the fingers
+        {
+            for (int l = 0; l < 3; l++) //for x, y, z
+            {
+                if (Mathf.Abs((check[1][k][l] - check[1][0][l]) - (finisher[1][k][l] - finisher[1][0][l])) >= tolerance)
+                    return false;
+            }
+        }
+        return true;
     }
 }
