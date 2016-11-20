@@ -358,6 +358,7 @@ namespace PassShake
                 if (DetectChange(newHandPosition))
                 {
                     checkmark.hide();
+                    reset.hide();
                     foreach (Hand h in currentFrame.Hands)
                     {
                         HandRepresentation rep = controller.getGraphics(h);
