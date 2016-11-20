@@ -33,7 +33,7 @@ namespace Leap.Unity
         private int _cylinderResolution = 12;
 
         private bool _hasGeneratedMeshes = false;
-        private Material jointMat;
+        protected Material jointMat;
 
         [SerializeField, HideInInspector]
         private List<Transform> _serializedTransforms;
@@ -45,9 +45,9 @@ namespace Leap.Unity
         private Transform wristPositionSphere;
 
         private List<Renderer> _armRenderers;
-        private List<Transform> _cylinderTransforms;
-        private List<Transform> _sphereATransforms;
-        private List<Transform> _sphereBTransforms;
+        protected List<Transform> _cylinderTransforms;
+        protected List<Transform> _sphereATransforms;
+        protected List<Transform> _sphereBTransforms;
 
         private Transform armFrontLeft, armFrontRight, armBackLeft, armBackRight;
         private Hand hand_;
