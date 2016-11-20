@@ -17,6 +17,7 @@ public class GestureLogic : BaseInputModule {
     private List<float[][][]> gestures = new List<float[][][]> ();//List of gesture so far
     public List<float[][][]> correct = new List<float[][][]> ();  //Correct passshake
     private float startPositionTime;                //Time that certain position is held
+    private float timeDelay = 0;                    //Delay between reset and next attempt
     private float[][][] startHands; //Last state of hand before position hold
 
     private Frame currentFrame;
@@ -24,6 +25,7 @@ public class GestureLogic : BaseInputModule {
     private float[][][] finisher;
     public int tolerance;                          //leeway in mm
     private bool success;
+    private bool failed;
     private string path = "./password.txt";
     public bool passwordExists;
     private int mode;
@@ -122,7 +124,7 @@ public class GestureLogic : BaseInputModule {
 
     public override void Process()
     {
-        throw new NotImplementedException();
+        OnFixedFrame(currentFrame);
     }
 
     // Update is called once per frame
@@ -231,24 +233,29 @@ public class GestureLogic : BaseInputModule {
             {
                 if (CheckFinisher(hands))
                 {
-                    CheckPass();
+                    success = CheckPass();
+                    if (!success)
+                        failed = !success;
                     return;
                 }
                 /*if(CheckResetter(hands))
                 {
                     gestures.Clear();
+                    timeDelay = Time.time;
                     return;
+                    timeDelay = Time.time;
                 }*/
-                if(DetectChange(hands))
+                if (DetectChange(hands) && Time.time - timeDelay >= 2000 )
                 {
                     if (Time.time - startPositionTime >= 2000)
                     {
                         gestures.Add(hands);
                         //SpriteRenderer.Enabled = true;
+                        startPositionTime = Time.time;
+                        startHands = hands;
                     }
                 }
-                startPositionTime = Time.time;
-                startHands = hands;
+                
             }
             else if (mode == 1)
             {
@@ -261,18 +268,20 @@ public class GestureLogic : BaseInputModule {
                 /*if(CheckResetter(hands))
                 {
                     correct.Clear();
+                    timeDelay = Time.time;
                     return;
                 }*/
-                if (DetectChange(hands))
+                if (DetectChange(hands) && Time.time - timeDelay >= 2000)
                 {
                     if (Time.time - startPositionTime >= 2000)
                     {
                         correct.Add(hands);
                         //SpriteRenderer.Enabled = true;
+                        startPositionTime = Time.time;
+                        startHands = hands;
                     }
                 }
-                startPositionTime = Time.time;
-                startHands = hands;
+                
             }
         }
         
