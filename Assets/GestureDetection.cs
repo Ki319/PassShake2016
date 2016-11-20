@@ -210,6 +210,7 @@ namespace PassShake
                 else if (i == 3)
                 {
                     current.Clear();
+                    reset.hide();
                 }
             }
             else
@@ -392,7 +393,8 @@ namespace PassShake
                     }
                     if (Time.time - startPositionTime >= timer * 2)
                     {
-                        Debug.Log("CLEARED!" + Time.time);
+                        //Debug.Log("CLEARED!" + Time.time);
+                        reset.show();
                         startPositionTime = Time.time;
                         return 3;
                     }
