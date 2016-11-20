@@ -63,6 +63,7 @@ namespace PassShake
                     return;
                 }
             }
+            findTerm = false;
         }
 
         protected override void Awake()
@@ -75,12 +76,13 @@ namespace PassShake
 
             startPosition = genGesture();
             endPosition = genGesture();
+            terminators = new PasswordData(term);
             if (File.Exists(term))
             {
                 sequenceTerminator = averageTerminators();
             }
 
-            /*sequenceTerminator[1][0][0] = 0.005362828f;
+            sequenceTerminator[1][0][0] = 0.005362828f;
             sequenceTerminator[1][0][1] = 0.7433285f;
             sequenceTerminator[1][0][2] = -9.486539f;
             sequenceTerminator[1][1][0] = -0.08700792f;
@@ -99,7 +101,7 @@ namespace PassShake
             sequenceTerminator[1][5][1] = 0.7070413f;
             sequenceTerminator[1][5][2] = -9.476624f;
 
-            normalize(sequenceTerminator);*/
+            normalize(sequenceTerminator);
         }
 
         void Update()
@@ -126,30 +128,19 @@ namespace PassShake
 
             if (findTerm)    //In mode to set terminator gesture
             {
-                termList.Add(newHandPosition);
-                if (termList.Count > 10)
-                {
-                    terminators = new PasswordData(term);
-                    terminators.write(term, termList);
-                    sequenceTerminator = averageTerminators();
-                    findTerm = false;
-                }
-            }
-
-            if (setMode)
-            {
-                if (!CheckTerminator(newHandPosition) && Time.time - startPositionTime >= timer)
-                {
-                    data.write(path, current);
-                    new Scene_Manager().LoadMainMenu();
-                    return;
-                }
-
                 if (DetectChange(newHandPosition))
                 {
                     if (Time.time - startPositionTime >= timer && nonZero(newHandPosition))
                     {
-                        current.Add(newHandPosition);
+                        termList.Add(newHandPosition);
+                        if (termList.Count > 10)
+                        {
+                            terminators = new PasswordData(term);
+                            terminators.write(term, termList);
+                            sequenceTerminator = averageTerminators();
+                            findTerm = false;
+                            Debug.Log("DONE");
+                        }
                     }
                     startPosition = newHandPosition;
                     startPositionTime = Time.time;
@@ -178,6 +169,19 @@ namespace PassShake
                         }
                     }
                 }
+                return;
+            }
+
+            if (setMode)
+            {
+                if (!CheckTerminator(newHandPosition) && Time.time - startPositionTime >= timer)
+                {
+                    data.write(path, current);
+                    new Scene_Manager().LoadMainMenu();
+                    return;
+                }
+
+                DetectAndModify(newHandPosition);
             }
             else
             {
@@ -194,39 +198,7 @@ namespace PassShake
                     return;
                 }
 
-                if (DetectChange(newHandPosition))
-                {
-                    if (Time.time - startPositionTime >= timer && nonZero(newHandPosition))
-                    {
-                        current.Add(newHandPosition);
-                    }
-                    startPosition = newHandPosition;
-                    startPositionTime = Time.time;
-                    checkmark.hide();
-                    foreach (Hand h in currentFrame.Hands)
-                    {
-                        HandRepresentation rep = controller.getGraphics(h);
-                        if (rep != null)
-                        {
-                            ((CapsuleHand)((HandProxy)rep).handModels[0]).Normal();
-                        }
-                    }
-                }
-                else
-                {
-                    if (Time.time - startPositionTime >= timer)
-                    {
-                        checkmark.show();
-                        foreach (Hand h in currentFrame.Hands)
-                        {
-                            HandRepresentation rep = controller.getGraphics(h);
-                            if (rep != null)
-                            {
-                                ((CapsuleHand)((HandProxy)rep).handModels[0]).Green();
-                            }
-                        }
-                    }
-                }
+                DetectAndModify(newHandPosition);
             }
         }
 
@@ -274,10 +246,8 @@ namespace PassShake
 
         public float[][][] averageTerminators()
         {
-            terminators.loadPassword(term);
             termList = terminators.getHandGesture();
             float[][][] result = genGesture();
-            float avgx = 0.0f, avgy = 0.0f, avgz = 0.0f;
             for (int t = 0; t < termList.Count; t++)
             {
                 for (int i = 0; i < 2; i++)
@@ -286,17 +256,17 @@ namespace PassShake
                     {
                         for (int k = 0; k < 3; k++)
                         {
-                            avgx += termList[t][i][j][k];
-                            avgy += termList[t][i][j][k];
-                            avgz += termList[t][i][j][k];
+                            result[i][j][k] += termList[t][i][j][k];
                         }
-                        avgx /= termList.Count;
-                        avgy /= termList.Count;
-                        avgz /= termList.Count;
-                        result[i][j][0] = avgx;
-                        result[i][j][1] = avgy;
-                        result[i][j][2] = avgz;
                     }
+                }
+            }
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    result[0][i][j] /= termList.Count;
+                    result[1][i][j] /= termList.Count;
                 }
             }
             normalize(result);
@@ -349,6 +319,43 @@ namespace PassShake
             }
 
             return false;
+        }
+
+        private void DetectAndModify(float[][][] newHandPosition)
+        {
+            if (DetectChange(newHandPosition))
+            {
+                if (Time.time - startPositionTime >= timer && nonZero(newHandPosition))
+                {
+                    current.Add(newHandPosition);
+                }
+                startPosition = newHandPosition;
+                startPositionTime = Time.time;
+                checkmark.hide();
+                foreach (Hand h in currentFrame.Hands)
+                {
+                    HandRepresentation rep = controller.getGraphics(h);
+                    if (rep != null)
+                    {
+                        ((CapsuleHand)((HandProxy)rep).handModels[0]).Normal();
+                    }
+                }
+            }
+            else
+            {
+                if (Time.time - startPositionTime >= timer)
+                {
+                    checkmark.show();
+                    foreach (Hand h in currentFrame.Hands)
+                    {
+                        HandRepresentation rep = controller.getGraphics(h);
+                        if (rep != null)
+                        {
+                            ((CapsuleHand)((HandProxy)rep).handModels[0]).Green();
+                        }
+                    }
+                }
+            }
         }
 
         private bool compareData(List<float[][][]> firstData, List<float[][][]> secondData)
