@@ -113,7 +113,6 @@ namespace PassShake
 
             if (setMode)
             {
-                //Debug.Log("ENTERED " + (Time.time - startPositionTime) + " " + CheckTerminator(newHandPosition) + " " + DetectChange(newHandPosition));
                 if (!CheckTerminator(newHandPosition) && Time.time - startPositionTime >= timer)
                 {
                     data.write(path, current);
