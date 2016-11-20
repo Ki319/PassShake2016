@@ -39,6 +39,7 @@ namespace PassShake
 
         [SerializeField]
         private CheckmarkSprite checkmark;
+        [SerializeField]
         private ResetSprite reset;
 
         [SerializeField]
