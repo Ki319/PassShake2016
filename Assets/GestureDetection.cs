@@ -27,13 +27,18 @@ namespace PassShake
         private float tolerance = .6f;
 
         [SerializeField]
-        private int timer = 2000;
+        private float timer = 1f;
 
         [SerializeField]
         private bool setMode = true;
 
         [SerializeField]
         private CheckmarkSprite checkmark;
+
+        [SerializeField]
+        private CapsuleHand leftHand;
+        [SerializeField]
+        private CapsuleHand rightHand;
 
         private Frame currentFrame;
 
@@ -96,11 +101,11 @@ namespace PassShake
             List<Hand> handList = currentFrame.Hands;
 
             float[][][] newHandPosition = genGesture();
-            foreach(Hand h in handList)
+            foreach (Hand h in handList)
             {
                 int i = h.IsLeft ? 0 : 1;
                 addCoord(newHandPosition[i], 0, h.PalmPosition);
-                for(int j = 0; j < 5; j++)
+                for (int j = 0; j < 5; j++)
                 {
                     addCoord(newHandPosition[i], j + 1, h.Fingers[j].TipPosition);
                 }
@@ -108,27 +113,29 @@ namespace PassShake
 
             normalize(newHandPosition);
 
-            if(setMode)
+            if (setMode)
             {
-                if(CheckTerminator(newHandPosition))
+                //Debug.Log("ENTERED " + (Time.time - startPositionTime) + " " + CheckTerminator(newHandPosition) + " " + DetectChange(newHandPosition));
+                if (!CheckTerminator(newHandPosition) && Time.time - startPositionTime >= timer)
                 {
                     data.write(path, current);
                     new Scene_Manager().LoadMainMenu();
                     return;
                 }
 
-                if(DetectChange(newHandPosition))
+                if (DetectChange(newHandPosition))
                 {
-                    if(Time.time - startPositionTime >= timer)
+                    if (Time.time - startPositionTime >= timer)
                     {
                         current.Add(newHandPosition);
                     }
                     startPosition = newHandPosition;
                     startPositionTime = Time.time;
+                    checkmark.hide();
                 }
                 else
                 {
-                    if(Time.time - startPositionTime >= timer)
+                    if (Time.time - startPositionTime >= timer)
                     {
                         checkmark.show();
                     }
@@ -139,12 +146,16 @@ namespace PassShake
         private float[][][] genGesture()
         {
             float[][][] gesture = new float[2][][];
-            for(int i = 0; i < 2; i++)
+            for (int i = 0; i < 2; i++)
             {
                 gesture[i] = new float[6][];
-                for(int j = 0; j < 2; j++)
+                for (int j = 0; j < 6; j++)
                 {
                     gesture[i][j] = new float[3];
+                    for (int k = 0; k < 3; k++)
+                    {
+                        gesture[i][j][k] = 0f;
+                    }
                 }
             }
             return gesture;
@@ -159,15 +170,17 @@ namespace PassShake
 
         private void normalize(float[][][] f)
         {
-            for(int i = 5; i >= 1; i--)
+            for (int i = 5; i >= 1; i--)
             {
-                for(int j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
+                    float f1 = f[0][i][j];
+                    float f2 = f[0][0][j];
                     f[0][i][j] -= f[0][0][j];
                     f[1][i][j] -= f[1][0][j];
                 }
             }
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 f[0][0][i] = 0;
                 f[1][0][i] = 0;
