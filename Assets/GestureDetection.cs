@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Leap.Unity;
 using Leap;
 using System;
+using System.IO;
 
 namespace PassShake
 {
@@ -34,7 +35,7 @@ namespace PassShake
 
         [SerializeField]
         private bool setMode = true;
-        private bool findTerm = false;
+        private bool findTerm = false;  //Serialize?
 
         [SerializeField]
         private CheckmarkSprite checkmark;
@@ -72,7 +73,7 @@ namespace PassShake
             startPosition = genGesture();
             endPosition = genGesture();
             sequenceTerminator = genGesture();
-            if(terminators.getHandGesture().Count != 0)
+            if (File.Exists(term))
             {
                 sequenceTerminator = averageTerminators();
             }
@@ -121,7 +122,7 @@ namespace PassShake
 
             normalize(newHandPosition);
 
-            if(findTerm)
+            if(findTerm)    //In mode to set terminator gesture
             {
                 termList.Add(newHandPosition);
                 if (termList.Count > 10)
@@ -129,6 +130,7 @@ namespace PassShake
                     terminators = new PasswordData(term);
                     terminators.write(term, termList);
                     sequenceTerminator = averageTerminators();
+                    findTerm = false;
                 }
             }
 
