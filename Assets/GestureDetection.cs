@@ -126,6 +126,29 @@ namespace PassShake
 
             normalize(newHandPosition);
 
+            if(handList.Count > 1)
+            {
+                foreach (Hand h in currentFrame.Hands)
+                {
+                    HandRepresentation rep = controller.getGraphics(h);
+                    if (rep != null)
+                    {
+                        ((CapsuleHand)((HandProxy)rep).handModels[0]).ShiftPosition();
+                    }
+                }
+            }
+            else
+            {
+                foreach (Hand h in currentFrame.Hands)
+                {
+                    HandRepresentation rep = controller.getGraphics(h);
+                    if (rep != null)
+                    {
+                        ((CapsuleHand)((HandProxy)rep).handModels[0]).NormalPosition();
+                    }
+                }
+            }
+
             if (findTerm)    //In mode to set terminator gesture
             {
                 if (DetectChange(newHandPosition))
@@ -292,7 +315,7 @@ namespace PassShake
 
         private bool CheckTerminator(float[][][] handPosition)
         {
-            return CheckPositions(sequenceTerminator, handPosition);
+            return CheckPositions(sequenceTerminator, handPosition, 2);
         }
 
         private bool DetectChange(float[][][] handPosition)
@@ -300,7 +323,7 @@ namespace PassShake
             return CheckPositions(startPosition, handPosition);
         }
 
-        private bool CheckPositions(float[][][] firstPosition, float[][][] handPosition)
+        private bool CheckPositions(float[][][] firstPosition, float[][][] handPosition, float scale = 1)
         {
             float f = handPosition[0][5][2];
             float f2 = firstPosition[0][5][1];
@@ -312,7 +335,7 @@ namespace PassShake
                     for (int k = 0; k < 3; k++)
                     {
                         total += Mathf.Abs(handPosition[i][j][k] - firstPosition[i][j][k]);
-                        if (total >= tolerance)
+                        if (total >= tolerance * scale)
                             return true;
                     }
                 }
@@ -325,7 +348,7 @@ namespace PassShake
         {
             if (DetectChange(newHandPosition))
             {
-                if (Time.time - startPositionTime >= timer && nonZero(newHandPosition))
+                if (Time.time - startPositionTime >= timer && nonZero(startPosition))
                 {
                     current.Add(newHandPosition);
                 }
@@ -343,7 +366,7 @@ namespace PassShake
             }
             else
             {
-                if (Time.time - startPositionTime >= timer)
+                if (Time.time - startPositionTime >= timer && nonZero(startPosition))
                 {
                     checkmark.show();
                     foreach (Hand h in currentFrame.Hands)
