@@ -212,7 +212,6 @@ namespace PassShake
                 else if (i == 3)
                 {
                     current.Clear();
-                    reset.hide();
                 }
             }
             else
@@ -358,7 +357,6 @@ namespace PassShake
             {
                 if (DetectChange(newHandPosition))
                 {
-                    checkmark.hide();
                     reset.hide();
                     foreach (Hand h in currentFrame.Hands)
                     {
@@ -378,7 +376,7 @@ namespace PassShake
                 }
                 else if(Time.time - startPositionTime >= timer * 2)
                 {
-                    checkmark.show();
+                    reset.show();
                     foreach (Hand h in currentFrame.Hands)
                     {
                         HandRepresentation rep = controller.getGraphics(h);
