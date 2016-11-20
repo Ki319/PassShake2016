@@ -13,10 +13,10 @@ namespace Leap.Unity
         private const int THUMB_BASE_INDEX = (int)Finger.FingerType.TYPE_THUMB * 4;
         private const int PINKY_BASE_INDEX = (int)Finger.FingerType.TYPE_PINKY * 4;
 
-        private const float SPHERE_RADIUS = 0.005f;
+        protected const float SPHERE_RADIUS = 0.005f;
         private const float CYLINDER_RADIUS = 0.003f;
-        private const float PALM_RADIUS = 0.015f;
-        
+        protected const float PALM_RADIUS = 0.015f;
+
         private static Color[] _leftColorList = { new Color(0.0f, 0.0f, 1.0f) };
         private static Color[] _rightColorList = { new Color(1.0f, 0.0f, 0.0f) };
 
@@ -27,7 +27,7 @@ namespace Leap.Unity
         private Material _material;
 
         [SerializeField]
-        private Mesh _sphereMesh;
+        protected Mesh _sphereMesh;
 
         [SerializeField]
         private int _cylinderResolution = 12;
@@ -36,7 +36,7 @@ namespace Leap.Unity
         protected Material jointMat;
 
         [SerializeField, HideInInspector]
-        private List<Transform> _serializedTransforms;
+        protected List<Transform> _serializedTransforms;
 
         private Transform[] _jointSpheres;
         private Transform mockThumbJointSphere;
@@ -151,11 +151,10 @@ namespace Leap.Unity
         {
             //Update the spheres first
             updateSpheres();
-
             GameObject[] gameObjects = gameObject.scene.GetRootGameObjects();
             int i = 0;
             for (i = 0; i < gameObjects.Length && !gameObjects[i].ToString().StartsWith("LeapHandController"); i++) ;
-
+            
             HandPool handpool = gameObjects[i].GetComponent<HandPool>();
 
             float differenceX = palmPositionSphere.position.x - gameObjects[i].transform.position.x;
@@ -186,13 +185,14 @@ namespace Leap.Unity
                 cylinder.Translate(vec);
             }
 
-            for(i = 0; i < _serializedTransforms.Count; i++)
+            for (i = 0; i < _serializedTransforms.Count; i++)
             {
                 Transform sphere = _serializedTransforms[i];
 
                 sphere.Translate(vec);
             }
-            
+
+
             updateCylinders();
         }
 
@@ -203,8 +203,8 @@ namespace Leap.Unity
             //Update all spheres
             palmPositionSphere.position = hand_.PalmPosition.ToVector3();
             //transform.position.Set(transform.position.x, transform.position.y, 100);
-           // Debug.LogError(differenceZ);
-           // palmPositionSphere.position.Set(palmPositionSphere.position.x, palmPositionSphere.position.y, -9.5f);
+            // Debug.LogError(differenceZ);
+            // palmPositionSphere.position.Set(palmPositionSphere.position.x, palmPositionSphere.position.y, -9.5f);
 
             List<Finger> fingers = hand_.Fingers;
             for (int i = 0; i < fingers.Count; i++)
@@ -215,20 +215,36 @@ namespace Leap.Unity
                     int key = getFingerJointIndex((int)finger.Type, j);
                     Transform sphere = _jointSpheres[key];
                     sphere.position = finger.Bone((Bone.BoneType)j).NextJoint.ToVector3();
-                   // sphere.position.Set(sphere.position.x, sphere.position.y, sphere.position.z + differenceZ);
+                    // sphere.position.Set(sphere.position.x, sphere.position.y, sphere.position.z + differenceZ);
                 }
             }
 
             Vector3 wristPos = hand_.PalmPosition.ToVector3();
             wristPositionSphere.position = wristPos;
-           // wristPositionSphere.position.Set(wristPositionSphere.position.x, wristPositionSphere.position.y, wristPositionSphere.position.z);
+            // wristPositionSphere.position.Set(wristPositionSphere.position.x, wristPositionSphere.position.y, wristPositionSphere.position.z);
 
             Transform thumbBase = _jointSpheres[THUMB_BASE_INDEX];
 
             Vector3 thumbBaseToPalm = thumbBase.position - hand_.PalmPosition.ToVector3();
             //thumbBaseToPalm.z += differenceZ;
             mockThumbJointSphere.position = hand_.PalmPosition.ToVector3() + Vector3.Reflect(thumbBaseToPalm, hand_.Basis.xBasis.ToVector3());
-           // mockThumbJointSphere.position.Set(mockThumbJointSphere.position.x, mockThumbJointSphere.position.y, mockThumbJointSphere.position.z + differenceZ);
+            // mockThumbJointSphere.position.Set(mockThumbJointSphere.position.x, mockThumbJointSphere.position.y, mockThumbJointSphere.position.z + differenceZ);
+        }
+
+        public void Green()
+        {
+            jointMat.color = new Color(0, 1, 0);
+        }
+
+        public void Normal()
+        {
+            if (hand_.IsLeft)
+            {
+                jointMat.color = _leftColorList[0];
+            }
+            else {
+                jointMat.color = _rightColorList[0];
+            }
         }
 
         private void updateArm()
@@ -357,7 +373,7 @@ namespace Leap.Unity
             return fingerIndex * 4 + jointIndex;
         }
 
-        private Transform createSphere(string name, float radius, bool isPartOfArm = false)
+        protected Transform createSphere(string name, float radius, bool isPartOfArm = false)
         {
             GameObject sphere = new GameObject(name);
             _serializedTransforms.Add(sphere.transform);
