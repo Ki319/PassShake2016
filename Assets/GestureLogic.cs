@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Leap.Unity;
 using Leap;
 using System;
+using PassShake;
 
 public class GestureLogic : BaseInputModule {
 
@@ -40,11 +41,44 @@ public class GestureLogic : BaseInputModule {
                 return;
             }
         }
+        correct = new PasswordData(path).getHandGesture();
         startPositionTime = Time.time;
         tolerance = 20;
         success = false;
         mode = 0;
-	}
+        float[][][] finisher = new float[2][][];
+        for(int i = 0; i < 2; i++)
+        {
+            finisher[i] = new float[6][];
+            for(int j = 0; j < 6; j++)
+            {
+                finisher[i][j] = new float[3];
+                for(int k = 0; k < 3; k++)
+                {
+                    if (i == 0)
+                        finisher[i][j][k] = 0.0f;
+                }
+            }
+        }
+        finisher[1][0][0] = 0.005362828f;
+        finisher[1][0][1] = 0.7433285f;
+        finisher[1][0][2] = -9.486539f;
+        finisher[1][1][0] = -0.08700792f;
+        finisher[1][1][1] = 0.7299139f;
+        finisher[1][1][2] = -9.482934f;
+        finisher[1][2][0] = -0.01756124f;
+        finisher[1][2][1] = 0.7061447f;
+        finisher[1][2][2] = -9.481342f;
+        finisher[1][3][0] = -0.007958782f;
+        finisher[1][3][1] = 0.7018657f;
+        finisher[1][3][2] = -9.483487f;
+        finisher[1][4][0] = 0.006049518f;
+        finisher[1][4][1] = 0.7037531f;
+        finisher[1][4][2] = -9.484939f;
+        finisher[1][5][0] = 0.01607722f;
+        finisher[1][5][1] = 0.7070413f;
+        finisher[1][5][2] = -9.476624f;
+    }
 
     //Update the Head Yaw for Calculating "Shoulder Positions"s
     void Update()
@@ -89,11 +123,36 @@ public class GestureLogic : BaseInputModule {
             gestures.Add(hands);
         }
         startPositionTime = Time.time;
+        startHand = hands;
 
         return true;
     }
 
-    List <string> ToStringArray(Hand curr)
+    bool SetGesturePassword(float[][][] hands)
+    {
+        for (int i = 0; i < 2; i++) //L/R hand
+        {
+            for (int j = 0; j < 6; j++) //digits + palm
+            {
+                for (int k = 0; k < 3; k++) //x, y, z
+                {
+                    if (Mathf.Abs(hands[i][j][k] - startHand[i][j][k]) <= tolerance) //checks to see if currenthand has moved more than tolerance mm
+                        return false;
+                }
+            }
+        }
+
+        if (Time.time - startPositionTime >= 2000)
+        {
+            gestures.Add(hands);
+        }
+        startPositionTime = Time.time;
+        startHand = hands;
+
+        return true;
+    }
+
+    List <string> ToStringArray(float[][][] hands)
     {
         List<string> result = new List<string>();
         for (int i = 0; i < 2; i++)
@@ -102,19 +161,9 @@ public class GestureLogic : BaseInputModule {
             {
                 for (int k = 0; k < 3; k++)
                 {
-                    if (Mathf.Abs(hands[i][j][k] - holdHand.PalmPosition.x) >= tolerance)
-                        return false;
+                    result.Add(hands[i][j][k].ToString());
                 }
             }
-        }
-        result.Add(curr.PalmPosition.x.ToString());
-        result.Add(curr.PalmPosition.y.ToString());
-        result.Add(curr.PalmPosition.z.ToString());
-        for(int i = 0; i < curr.Fingers.Count; i++)
-        {
-            result.Add(curr.Fingers[i].StabilizedTipPosition.x.ToString());
-            result.Add(curr.Fingers[i].StabilizedTipPosition.y.ToString());
-            result.Add(curr.Fingers[i].StabilizedTipPosition.z.ToString());
         }
         return result;
     }

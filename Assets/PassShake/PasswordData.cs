@@ -80,5 +80,10 @@ namespace PassShake
         {
             return handGestures[index][1];
         }
+
+        public List<float[][][]> getHandGesture()
+        {
+            return handGestures;
+        }
     }
 }
