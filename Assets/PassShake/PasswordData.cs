@@ -20,7 +20,7 @@ namespace PassShake
             loadPassword(passwordLocation);
         }
 
-        private void loadPassword(string passwordLocation)
+        public void loadPassword(string passwordLocation)
         {
             if (File.Exists(passwordLocation))
             {
