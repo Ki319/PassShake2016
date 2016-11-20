@@ -234,7 +234,7 @@ public class GestureLogic : BaseInputModule {
                     CheckPass();
                     return;
                 }
-                if(DetectChange(hands));
+                if(DetectChange(hands))
                 {
                     if (Time.time - startPositionTime >= 2000)
                     {
@@ -253,7 +253,7 @@ public class GestureLogic : BaseInputModule {
                     mode = 0;
                     return;
                 }
-                if (DetectChange(hands)) ;
+                if (DetectChange(hands))
                 {
                     if (Time.time - startPositionTime >= 2000)
                     {
