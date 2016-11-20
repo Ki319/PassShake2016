@@ -31,4 +31,7 @@ public class Scene_Manager : MonoBehaviour {
     public void exitApplication(){
         Application.Quit();
     }
+    public void LoadFail(){
+        LoadScene("Unsuccessful_Login");
+    }
 }
