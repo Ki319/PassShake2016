@@ -63,9 +63,6 @@ public class GestureLogic : BaseInputModule {
         if (mode == 0)
         {
             DetectChange(hand.GetLeapHand());
-            {
-                
-            }
             if (gestures.Count - 1 == correct.Count)
                 success = CheckPass();
         }
@@ -89,21 +86,16 @@ public class GestureLogic : BaseInputModule {
 
     bool DetectChange(float[][][] hands)
     {
-        hands = new float[2][][];
         for (int i = 0; i < 2; i++)
         {
-            float[][] currHand = new float[6][];
             for (int j = 0; j < 6; j++)
             {
-                float[] currPart = new float[3];
                 for (int k = 0; k < 3; k++)
                 {
-                    if (Mathf.Abs(currPart[k] - holdHand.PalmPosition.x) >= tolerance)
+                    if (Mathf.Abs(hands[i][j][k] - holdHand.PalmPosition.x) >= tolerance)
                         return false;
                 }
-                currHand[j] = currPart;
             }
-            hands[i] = currHand;
         }
         if (Time.time - holdPositionTime >= 2500)
         {
@@ -117,6 +109,17 @@ public class GestureLogic : BaseInputModule {
     List <string> ToStringArray(Hand curr)
     {
         List<string> result = new List<string>();
+        for (int i = 0; i < 2; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    if (Mathf.Abs(hands[i][j][k] - holdHand.PalmPosition.x) >= tolerance)
+                        return false;
+                }
+            }
+        }
         result.Add(curr.PalmPosition.x.ToString());
         result.Add(curr.PalmPosition.y.ToString());
         result.Add(curr.PalmPosition.z.ToString());
