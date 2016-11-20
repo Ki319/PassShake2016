@@ -70,6 +70,16 @@ namespace Leap.Unity {
       }
     }
 
+        public HandRepresentation getGraphics(Hand hand)
+        {
+            HandRepresentation rep;
+            if (graphicsReps.TryGetValue(hand.Id, out rep))
+            {
+                return rep;
+            }
+            return null;
+        }
+
     /** 
     * Updates HandRepresentations based in the specified HandRepresentation Dictionary.
     * Active HandRepresentation instances are updated if the hand they represent is still
