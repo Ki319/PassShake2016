@@ -13,8 +13,8 @@ public class GestureLogic : BaseInputModule {
     [Tooltip("The current Leap Data Provider for the scene.")]
     public LeapProvider LeapDataProvider;
 
-    private List<Hand> gestures = new List<Hand>();//List of gesture so far
-    public List<Hand> correct = new List<Hand>();  //Correct passshake
+    private List<List<float[]>[]> gestures = new List<List<float[]>[]> ();//List of gesture so far
+    public List<List<float[]>[]> correct = new List<List<float[]>[]> ();  //Correct passshake
     private float holdPositionTime;                //Time that certain position is held
     private static List<float[]>[] startHand; //Last state of hand before position hold
 
@@ -73,10 +73,10 @@ public class GestureLogic : BaseInputModule {
             {
                 if (Time.time - holdPositionTime >= 2500)
                 {
-                    gestures.Add(holdHand);
+                    gestures.Add(startHand);
                 }
                 holdPositionTime = Time.time;
-                holdHand = hand.GetLeapHand();
+                startHand = hand.GetLeapHand();
             }
             if (gestures.Count - 1 == correct.Count)
                 success = CheckPass();
@@ -148,22 +148,20 @@ public class GestureLogic : BaseInputModule {
         return success;
     }
 
-    bool DetectChange(Hand curr)
+    bool DetectChange(List<float[]>[] hands)
     {
-        if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
-            return false;
-        else if (Mathf.Abs(curr.PalmPosition.y - holdHand.PalmPosition.y) >= tolerance)
-            return false;
-        else if (Mathf.Abs(curr.PalmPosition.z - holdHand.PalmPosition.z) >= tolerance)
-            return false;
-        for(int i = 0; i < curr.Fingers.Count; i++)
+        for (int i = 0; i < 2; i++)
         {
-            if(Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.x - holdHand.Fingers[i].StabilizedTipPosition.x) >= tolerance)
-                return false;
-            else if (Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.y - holdHand.Fingers[i].StabilizedTipPosition.y) >= tolerance)
-                return false;
-            else if (Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.z - holdHand.Fingers[i].StabilizedTipPosition.z) >= tolerance)
-                return false;
+            List<float[]> currHand = hands[i];
+            for (int j = 0; j < 3; j++)
+            {
+                if (Mathf.Abs(currHand[0][j] - holdHand.PalmPosition.x) >= tolerance)
+                for (int k = 1; k < 6; k++)
+                {
+                    if (Mathf.Abs(currHand[k][j] - holdHand.Fingers[i].StabilizedTipPosition.x) >= tolerance)
+                        return false;
+                }
+            }
         }
         return true;
     }
