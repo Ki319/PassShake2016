@@ -13,10 +13,10 @@ public class GestureLogic : BaseInputModule {
     [Tooltip("The current Leap Data Provider for the scene.")]
     public LeapProvider LeapDataProvider;
 
-    private List<List<float[]>[]> gestures = new List<List<float[]>[]> ();//List of gesture so far
-    public List<List<float[]>[]> correct = new List<List<float[]>[]> ();  //Correct passshake
+    private List<List<float[][][]> gestures = new List<List<float[]>[]> ();//List of gesture so far
+    public List<float[][][]> correct = new List<List<float[]>[]> ();  //Correct passshake
     private float holdPositionTime;                //Time that certain position is held
-    private static List<float[]>[] startHand; //Last state of hand before position hold
+    private float[][][] startHand; //Last state of hand before position hold
 
     private Frame currentFrame;
     public List<float[]>[] endHand;
