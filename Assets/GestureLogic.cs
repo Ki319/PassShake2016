@@ -15,7 +15,7 @@ public class GestureLogic : BaseInputModule {
 
     private List<float[][][]> gestures = new List<float[][][]> ();//List of gesture so far
     public List<float[][][]> correct = new List<float[][][]> ();  //Correct passshake
-    private float holdPositionTime;                //Time that certain position is held
+    private float startPositionTime;                //Time that certain position is held
     private float[][][] startHand; //Last state of hand before position hold
 
     private Frame currentFrame;
@@ -40,7 +40,7 @@ public class GestureLogic : BaseInputModule {
                 return;
             }
         }
-        holdPositionTime = Time.time;
+        startPositionTime = Time.time;
         tolerance = 20;
         success = false;
         mode = 0;
@@ -60,23 +60,9 @@ public class GestureLogic : BaseInputModule {
     // Update is called once per frame
     void OnFixedFrame(Frame frame)
     {
-        if (mode == 0)
-        {
-            DetectChange(hand.GetLeapHand());
-            if (gestures.Count - 1 == correct.Count)
+         DetectChange(hand.GetLeapHand());
+         if (gestures.Count - 1 == correct.Count)
                 success = CheckPass();
-        }
-        else if(mode == 1)
-        {
-            if(DetectChange(hand.GetLeapHand()))
-            {
-                if(Time.time - holdPositionTime >= 2500)
-                {
-                    writePassword(hand.GetLeapHand());
-                    passwordExists = true;
-                }
-            }
-        }
     }
 
     public bool getSuccess()
@@ -86,22 +72,23 @@ public class GestureLogic : BaseInputModule {
 
     bool DetectChange(float[][][] hands)
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++) //L/R hand
         {
-            for (int j = 0; j < 6; j++)
+            for (int j = 0; j < 6; j++) //digits + palm
             {
-                for (int k = 0; k < 3; k++)
+                for (int k = 0; k < 3; k++) //x, y, z
                 {
-                    if (Mathf.Abs(hands[i][j][k] - holdHand.PalmPosition.x) >= tolerance)
+                    if (Mathf.Abs(hands[i][j][k] - startHand[i][j][k]) <= tolerance) //checks to see if currenthand has moved more than tolerance mm
                         return false;
                 }
             }
         }
-        if (Time.time - holdPositionTime >= 2500)
+
+        if (Time.time - startPositionTime >= 2000)
         {
             gestures.Add(hands);
         }
-        holdPositionTime = Time.time;
+        startPositionTime = Time.time;
 
         return true;
     }
