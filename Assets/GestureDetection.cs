@@ -6,20 +6,24 @@ using System.Collections.Generic;
 using Leap.Unity;
 using Leap;
 using System;
+using System.IO;
 
 namespace PassShake
 {
     public class GestureDetection : BaseInputModule
     {
         private const string path = "./password.txt";
+        private const string term = "./terminators.txt";
 
         [Header(" Interaction Setup")]
         [Tooltip("The current Leap Data Provider for the scene.")]
         public LeapProvider LeapDataProvider;
 
         private PasswordData data;
+        private PasswordData terminators;
 
         private List<float[][][]> current = new List<float[][][]>();
+        private List<float[][][]> termList = new List<float[][][]>();
 
         private float startPositionTime = 0;
 
@@ -31,6 +35,7 @@ namespace PassShake
 
         [SerializeField]
         private bool setMode = true;
+        private bool findTerm = false;  //Serialize?
 
         [SerializeField]
         private CheckmarkSprite checkmark;
@@ -70,9 +75,12 @@ namespace PassShake
 
             startPosition = genGesture();
             endPosition = genGesture();
-            sequenceTerminator = genGesture();
+            if (File.Exists(term))
+            {
+                sequenceTerminator = averageTerminators();
+            }
 
-            sequenceTerminator[1][0][0] = 0.005362828f;
+            /*sequenceTerminator[1][0][0] = 0.005362828f;
             sequenceTerminator[1][0][1] = 0.7433285f;
             sequenceTerminator[1][0][2] = -9.486539f;
             sequenceTerminator[1][1][0] = -0.08700792f;
@@ -91,7 +99,7 @@ namespace PassShake
             sequenceTerminator[1][5][1] = 0.7070413f;
             sequenceTerminator[1][5][2] = -9.476624f;
 
-            normalize(sequenceTerminator);
+            normalize(sequenceTerminator);*/
         }
 
         void Update()
@@ -115,6 +123,18 @@ namespace PassShake
             }
 
             normalize(newHandPosition);
+
+            if (findTerm)    //In mode to set terminator gesture
+            {
+                termList.Add(newHandPosition);
+                if (termList.Count > 10)
+                {
+                    terminators = new PasswordData(term);
+                    terminators.write(term, termList);
+                    sequenceTerminator = averageTerminators();
+                    findTerm = false;
+                }
+            }
 
             if (setMode)
             {
@@ -250,6 +270,37 @@ namespace PassShake
                 f[0][0][i] = 0;
                 f[1][0][i] = 0;
             }
+        }
+
+        public float[][][] averageTerminators()
+        {
+            terminators.loadPassword(term);
+            termList = terminators.getHandGesture();
+            float[][][] result = genGesture();
+            float avgx = 0.0f, avgy = 0.0f, avgz = 0.0f;
+            for (int t = 0; t < termList.Count; t++)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int j = 0; j < 6; j++)
+                    {
+                        for (int k = 0; k < 3; k++)
+                        {
+                            avgx += termList[t][i][j][k];
+                            avgy += termList[t][i][j][k];
+                            avgz += termList[t][i][j][k];
+                        }
+                        avgx /= termList.Count;
+                        avgy /= termList.Count;
+                        avgz /= termList.Count;
+                        result[i][j][0] = avgx;
+                        result[i][j][1] = avgy;
+                        result[i][j][2] = avgz;
+                    }
+                }
+            }
+            normalize(result);
+            return result;
         }
 
         private bool nonZero(float[][][] handPosition)
