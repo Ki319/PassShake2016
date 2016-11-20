@@ -36,9 +36,7 @@ namespace PassShake
         private CheckmarkSprite checkmark;
 
         [SerializeField]
-        private CapsuleHand leftHand;
-        [SerializeField]
-        private CapsuleHand rightHand;
+        private LeapHandController controller;
 
         private Frame currentFrame;
 
@@ -132,12 +130,28 @@ namespace PassShake
                     startPosition = newHandPosition;
                     startPositionTime = Time.time;
                     checkmark.hide();
+                    foreach (Hand h in currentFrame.Hands)
+                    {
+                        HandRepresentation rep = controller.getGraphics(h);
+                        if (rep != null)
+                        {
+                            ((CapsuleHand)((HandProxy)rep).handModels[0]).Normal();
+                        }
+                    }
                 }
                 else
                 {
                     if (Time.time - startPositionTime >= timer)
                     {
                         checkmark.show();
+                        foreach(Hand h in currentFrame.Hands)
+                        {
+                            HandRepresentation rep = controller.getGraphics(h);
+                            if(rep != null)
+                            {
+                                ((CapsuleHand)((HandProxy)rep).handModels[0]).Green();
+                            }
+                        }
                     }
                 }
             }
