@@ -49,6 +49,21 @@ public class GestureLogic : BaseInputModule {
         tolerance = 20;
         success = false;
         mode = 0;
+        startHands = new float[2][][];
+        for (int i = 0; i < 2; i++)
+        {
+            startHands[i] = new float[6][];
+            for (int j = 0; j < 6; j++)
+            {
+                startHands[i][j] = new float[3];
+                for (int k = 0; k < 3; k++)
+                {
+                    if (i == 0)
+                        startHands[i][j][k] = 0.0f;
+                }
+            }
+        }
+
         finisher = new float[2][][];
         for(int i = 0; i < 2; i++)
         {
