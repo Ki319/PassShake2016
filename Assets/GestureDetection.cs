@@ -122,7 +122,7 @@ namespace PassShake
 
                 if (DetectChange(newHandPosition))
                 {
-                    if (Time.time - startPositionTime >= timer)
+                    if (Time.time - startPositionTime >= timer && nonZero(newHandPosition))
                     {
                         current.Add(newHandPosition);
                     }
@@ -143,10 +143,59 @@ namespace PassShake
                     if (Time.time - startPositionTime >= timer)
                     {
                         checkmark.show();
-                        foreach(Hand h in currentFrame.Hands)
+                        foreach (Hand h in currentFrame.Hands)
                         {
                             HandRepresentation rep = controller.getGraphics(h);
-                            if(rep != null)
+                            if (rep != null)
+                            {
+                                ((CapsuleHand)((HandProxy)rep).handModels[0]).Green();
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (!CheckTerminator(newHandPosition) && Time.time - startPositionTime >= timer)
+                {
+                    if (compareData(data.getHandGesture(), current))
+                    {
+                        new Scene_Manager().LoadSuccess();
+                    }
+                    else
+                    {
+                        new Scene_Manager().LoadFail();
+                    }
+                    return;
+                }
+
+                if (DetectChange(newHandPosition))
+                {
+                    if (Time.time - startPositionTime >= timer && nonZero(newHandPosition))
+                    {
+                        current.Add(newHandPosition);
+                    }
+                    startPosition = newHandPosition;
+                    startPositionTime = Time.time;
+                    checkmark.hide();
+                    foreach (Hand h in currentFrame.Hands)
+                    {
+                        HandRepresentation rep = controller.getGraphics(h);
+                        if (rep != null)
+                        {
+                            ((CapsuleHand)((HandProxy)rep).handModels[0]).Normal();
+                        }
+                    }
+                }
+                else
+                {
+                    if (Time.time - startPositionTime >= timer)
+                    {
+                        checkmark.show();
+                        foreach (Hand h in currentFrame.Hands)
+                        {
+                            HandRepresentation rep = controller.getGraphics(h);
+                            if (rep != null)
                             {
                                 ((CapsuleHand)((HandProxy)rep).handModels[0]).Green();
                             }
@@ -200,6 +249,23 @@ namespace PassShake
             }
         }
 
+        private bool nonZero(float[][][] handPosition)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 1; j < 6; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        if (Mathf.Abs(handPosition[i][j][k]) >= .01)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private bool CheckTerminator(float[][][] handPosition)
         {
             return CheckPositions(sequenceTerminator, handPosition);
@@ -227,6 +293,32 @@ namespace PassShake
             }
 
             return false;
+        }
+
+        private bool compareData(List<float[][][]> firstData, List<float[][][]> secondData)
+        {
+            Debug.Log(firstData.Count + " " + secondData.Count);
+            if (firstData.Count != secondData.Count)
+                return false;
+            for (int l = 0; l < firstData.Count; l++)
+            {
+                float[][][] indexOne = firstData[l];
+                float[][][] indexTwo = secondData[l];
+                float total = 0;
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int j = 1; j < 6; j++)
+                    {
+                        for (int k = 0; k < 3; k++)
+                        {
+                            total += Mathf.Abs(indexOne[i][j][k] - indexTwo[i][j][k]);
+                            if (total >= tolerance * 2)
+                                return false;
+                        }
+                    }
+                }
+            }
+            return true;
         }
     }
 }

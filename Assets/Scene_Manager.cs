@@ -6,6 +6,7 @@ public class Scene_Manager : MonoBehaviour {
 
     public void LoadScene(string Destination)
     {
+        SceneManager.UnloadScene(SceneManager.GetActiveScene());
         SceneManager.LoadScene(Destination);
     }
 
