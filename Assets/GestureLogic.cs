@@ -42,7 +42,6 @@ public class GestureLogic : BaseInputModule {
         }
         holdPositionTime = Time.time;
         tolerance = 20;
-        loadPassword();
         success = false;
         mode = 0;
 	}
@@ -79,55 +78,6 @@ public class GestureLogic : BaseInputModule {
                     writePassword(hand.GetLeapHand());
                     passwordExists = true;
                 }
-            }
-        }
-    }
-
-    private void loadPassword()
-    {
-        if (File.Exists(path))
-        {
-            passwordExists = true;
-            using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
-            {
-                int i = 0;
-                bool done = false;
-                while(done == false)
-                {
-                    try
-                    {
-                        Hand h = new Hand();
-                        //palm
-                        h.PalmPosition.x = reader.ReadSingle();
-                        h.PalmPosition.y = reader.ReadSingle();
-                        h.PalmPosition.z = reader.ReadSingle();
-                        for(int j = 0; j < 5; j++) //fingers
-                        {
-                            h.Fingers[j].StabilizedTipPosition.x = reader.ReadSingle();
-                            h.Fingers[j].StabilizedTipPosition.y = reader.ReadSingle();
-                            h.Fingers[j].StabilizedTipPosition.z = reader.ReadSingle();
-                        }
-                        correct.Add(h);
-
-                    } catch (EndOfStreamException e)
-                    {
-                        done = true;
-                    }
-                }
-            }
-        }
-        passwordExists = false;
-    }
-
-    private void writePassword(Hand curr)
-    {
-        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Append)))
-        {
-            List<string> coordinates = ToStringArray(curr);
-            for (int i = 0; i < coordinates.Count; i++)
-            {
-                writer.Write(coordinates[i]);
-                writer.Write(" ");
             }
         }
     }
