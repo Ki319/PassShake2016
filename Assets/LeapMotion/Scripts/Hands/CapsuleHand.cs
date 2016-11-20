@@ -20,6 +20,8 @@ namespace Leap.Unity
         private static Color[] _leftColorList = { new Color(0.0f, 0.0f, 1.0f) };
         private static Color[] _rightColorList = { new Color(1.0f, 0.0f, 0.0f) };
 
+        private float shiftX = 0;
+
         [SerializeField]
         private Chirality handedness;
 
@@ -145,6 +147,7 @@ namespace Leap.Unity
             else {
                 jointMat.color = _rightColorList[0];
             }
+            shiftX = 0;
         }
 
         public override void UpdateHand()
@@ -157,7 +160,7 @@ namespace Leap.Unity
             
             HandPool handpool = gameObjects[i].GetComponent<HandPool>();
 
-            float differenceX = palmPositionSphere.position.x - gameObjects[i].transform.position.x;
+            float differenceX = palmPositionSphere.position.x - gameObjects[i].transform.position.x + shiftX;
             float differenceY = palmPositionSphere.position.y - gameObjects[i].transform.position.y;
             float differenceZ = palmPositionSphere.position.z - gameObjects[i].transform.position.z;
 
@@ -245,6 +248,23 @@ namespace Leap.Unity
             else {
                 jointMat.color = _rightColorList[0];
             }
+        }
+
+        public void ShiftPosition()
+        {
+            if(hand_.IsLeft)
+            {
+                shiftX = .25f;
+            }
+            else
+            {
+                shiftX = -.25f;
+            }
+        }
+
+        public void NormalPosition()
+        {
+            shiftX = 0;
         }
 
         private void updateArm()
