@@ -283,6 +283,7 @@ public class GestureLogic : BaseInputModule {
         if (Time.time - startPositionTime >= 2000)
         {
             gestures.Add(hands);
+            //SpriteRenderer.Enabled = true;
         }
         startPositionTime = Time.time;
         startHands = hands;
