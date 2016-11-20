@@ -13,13 +13,13 @@ public class GestureLogic : BaseInputModule {
     [Tooltip("The current Leap Data Provider for the scene.")]
     public LeapProvider LeapDataProvider;
 
-    private List<Hand> gestures = new List<Hand>();//List of gesture so far
-    public List<Hand> correct = new List<Hand>();  //Correct passshake
+    private List<float[][][]> gestures = new List<float[][][]> ();//List of gesture so far
+    public List<float[][][]> correct = new List<float[][][]> ();  //Correct passshake
     private float holdPositionTime;                //Time that certain position is held
-    private static List<float[]>[] startHand; //Last state of hand before position hold
+    private float[][][] startHand; //Last state of hand before position hold
 
     private Frame currentFrame;
-    public List<float[]>[] endHand;
+    public float[][][] endHand;
     public int tolerance;                          //leeway in mm
     private bool success;
     private string path = "./password.txt";
@@ -40,15 +40,8 @@ public class GestureLogic : BaseInputModule {
                 return;
             }
         }
-        
-        startHand[0] = new List<float[]>();
-        startHand[1] = new List<float[]>();
-
-        endHand[0] = new List<float[]>();
-        endHand[1] = new List<float[]>();
         holdPositionTime = Time.time;
         tolerance = 20;
-        loadPassword();
         success = false;
         mode = 0;
 	}
@@ -69,15 +62,7 @@ public class GestureLogic : BaseInputModule {
     {
         if (mode == 0)
         {
-            if (DetectChange(hand.GetLeapHand()))
-            {
-                if (Time.time - holdPositionTime >= 2500)
-                {
-                    gestures.Add(holdHand);
-                }
-                holdPositionTime = Time.time;
-                holdHand = hand.GetLeapHand();
-            }
+            DetectChange(hand.GetLeapHand());
             if (gestures.Count - 1 == correct.Count)
                 success = CheckPass();
         }
@@ -94,83 +79,47 @@ public class GestureLogic : BaseInputModule {
         }
     }
 
-    private void loadPassword()
-    {
-        if (File.Exists(path))
-        {
-            passwordExists = true;
-            using (BinaryReader reader = new BinaryReader(File.Open(path, FileMode.Open)))
-            {
-                int i = 0;
-                bool done = false;
-                while(done == false)
-                {
-                    try
-                    {
-                        Hand h = new Hand();
-                        //palm
-                        h.PalmPosition.x = reader.ReadSingle();
-                        h.PalmPosition.y = reader.ReadSingle();
-                        h.PalmPosition.z = reader.ReadSingle();
-                        for(int j = 0; j < 5; j++) //fingers
-                        {
-                            h.Fingers[j].StabilizedTipPosition.x = reader.ReadSingle();
-                            h.Fingers[j].StabilizedTipPosition.y = reader.ReadSingle();
-                            h.Fingers[j].StabilizedTipPosition.z = reader.ReadSingle();
-                        }
-                        correct.Add(h);
-
-                    } catch (EndOfStreamException e)
-                    {
-                        done = true;
-                    }
-                }
-            }
-        }
-        passwordExists = false;
-    }
-
-    private void writePassword(Hand curr)
-    {
-        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Append)))
-        {
-            List<string> coordinates = ToStringArray(curr);
-            for (int i = 0; i < coordinates.Count; i++)
-            {
-                writer.Write(coordinates[i]);
-                writer.Write(" ");
-            }
-        }
-    }
-
     public bool getSuccess()
     {
         return success;
     }
 
-    bool DetectChange(Hand curr)
+    bool DetectChange(float[][][] hands)
     {
-        if (Mathf.Abs(curr.PalmPosition.x - holdHand.PalmPosition.x) >= tolerance)
-            return false;
-        else if (Mathf.Abs(curr.PalmPosition.y - holdHand.PalmPosition.y) >= tolerance)
-            return false;
-        else if (Mathf.Abs(curr.PalmPosition.z - holdHand.PalmPosition.z) >= tolerance)
-            return false;
-        for(int i = 0; i < curr.Fingers.Count; i++)
+        for (int i = 0; i < 2; i++)
         {
-            if(Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.x - holdHand.Fingers[i].StabilizedTipPosition.x) >= tolerance)
-                return false;
-            else if (Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.y - holdHand.Fingers[i].StabilizedTipPosition.y) >= tolerance)
-                return false;
-            else if (Mathf.Abs(curr.Fingers[i].StabilizedTipPosition.z - holdHand.Fingers[i].StabilizedTipPosition.z) >= tolerance)
-                return false;
+            for (int j = 0; j < 6; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    if (Mathf.Abs(hands[i][j][k] - holdHand.PalmPosition.x) >= tolerance)
+                        return false;
+                }
+            }
         }
+        if (Time.time - holdPositionTime >= 2500)
+        {
+            gestures.Add(hands);
+        }
+        holdPositionTime = Time.time;
+
         return true;
     }
 
     List <string> ToStringArray(Hand curr)
     {
         List<string> result = new List<string>();
+        for (int i = 0; i < 2; i++)
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    if (Mathf.Abs(hands[i][j][k] - holdHand.PalmPosition.x) >= tolerance)
+                        return false;
+                }
+            }
+        }
         result.Add(curr.PalmPosition.x.ToString());
         result.Add(curr.PalmPosition.y.ToString());
         result.Add(curr.PalmPosition.z.ToString());
@@ -188,14 +137,16 @@ public class GestureLogic : BaseInputModule {
     {
             for(int i = 0; i < correct.Count; i++)
             {
-                for(int j = 0; j < gestures[i].Fingers.Count; j++)
+                for(int j = 0; j < 2; j++) //for both hands
                 {
-                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.x - gestures[i].PalmPosition.x) - (correct[i].Fingers[j].StabilizedTipPosition.x - correct[i].PalmPosition.x)) >= tolerance)
-                        return false;
-                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.y - gestures[i].PalmPosition.y) - (correct[i].Fingers[j].StabilizedTipPosition.y - correct[i].PalmPosition.y)) >= tolerance)
-                        return false;
-                    if (Mathf.Abs((gestures[i].Fingers[j].StabilizedTipPosition.z - gestures[i].PalmPosition.z) - (correct[i].Fingers[j].StabilizedTipPosition.z - correct[i].PalmPosition.z)) >= tolerance)
-                        return false;
+                    for(int k = 1; k < 6; k++) //for the fingers
+                    {
+                        for(int l = 0; l < 3; l++) //for x, y, z
+                        {
+                           if (Mathf.Abs((gestures[i][j][k][l] - gestures[i][j][0][l]) - (correct[i][j][k][l] - correct[i][j][0][l])) >= tolerance)
+                                return false;
+                        }
+                    }
                 }
             }
             return true;
