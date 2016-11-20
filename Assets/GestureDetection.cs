@@ -24,7 +24,7 @@ namespace PassShake
         private float startPositionTime = 0;
 
         [SerializeField]
-        private int tolerance = 20;
+        private float tolerance = .6f;
 
         [SerializeField]
         private int timer = 2000;
@@ -186,13 +186,15 @@ namespace PassShake
 
         private bool CheckPositions(float[][][] firstPosition, float[][][] handPosition)
         {
+            float total = 0;
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 1; j < 6; j++)
                 {
                     for (int k = 0; k < 3; k++)
                     {
-                        if (Mathf.Abs(handPosition[i][j][k] - firstPosition[i][j][k]) >= tolerance)
+                        total += Mathf.Abs(handPosition[i][j][k] - firstPosition[i][j][k]);
+                        if (total >= tolerance)
                             return true;
                     }
                 }
