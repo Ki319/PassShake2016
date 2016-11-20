@@ -142,6 +142,11 @@ namespace PassShake
                             Debug.Log("DONE");
                         }
                     }
+                    else
+                    {
+                        termList.Clear();
+                        return;
+                    }
                     startPosition = newHandPosition;
                     startPositionTime = Time.time;
                     checkmark.hide();
@@ -269,7 +274,6 @@ namespace PassShake
                     result[1][i][j] /= termList.Count;
                 }
             }
-            normalize(result);
             return result;
         }
 
